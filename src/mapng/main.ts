@@ -10,7 +10,7 @@ import { createWorld, initRapier } from './physics/world';
 import { carMesh, pedMesh, placeOnPose } from './render/actors';
 import { loadModel } from './render/models';
 import { buildProps, buildSignals } from './render/props';
-import { buildRoads, buildRouteGuide } from './render/roads';
+import { buildDirectionArrows, buildRoads, buildRouteGuide } from './render/roads';
 import { createScene, followSun } from './render/scene';
 import { buildSkirt, buildTerrain } from './render/terrain';
 import { SignalSystem } from './traffic/signals';
@@ -64,6 +64,7 @@ async function boot() {
   status('Building terrain and roads…');
   scene.add(buildTerrain(level.terrain, `${LEVEL_BASE}/${level.index.terrain.baseTexture}`));
   scene.add(buildSkirt(level.terrain));
+  scene.add(buildDirectionArrows(level.roads));
   scene.add(buildParkedCars(parked));
   for (const b of parked) physics.addBox(b.x, b.y, b.z, b.heading, [2.05, 0.88, 0.75]);
   scene.add(buildRoads(level.roads));

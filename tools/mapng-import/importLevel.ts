@@ -157,11 +157,29 @@ for (const f of roadFiles) {
 }
 const byKind = count(roads.map((r) => r.kind));
 say(`roads: ${roads.length} DecalRoads (${Object.entries(byKind).map(([k, v]) => `${v} ${k}`).join(', ')})`);
-write('roads.json', JSON.stringify({ roads }));
 
 // OSM bundle (only used to name places and align): parking lots, POIs
 const report = readJson('mapng_source/export_report.json');
 const osm: any[] = report.mapData?.features ?? [];
+// One-way service roads (e.g. parking aisles): MapNG drops the OSM oneway tag on
+// DecalRoads. Restore it, with the point order following the OSM way direction.
+{
+  let restored = 0;
+  const ways = new Map(osm.filter((f) => f.type === 'road' && f.tags?.oneway === 'yes').map((f) => [String(f.id), f]));
+  for (const r of roads) {
+    if (r.oneWay || (r.kind !== 'service' && r.kind !== 'other')) continue;
+    const m = /_(\d+_seg_\d+)/.exec(r.id);
+    const w = m && ways.get(m[1]);
+    if (!w) continue;
+    const a = toWorld(w.geometry[0].lat, w.geometry[0].lng);
+    const first = r.points[0], last = r.points[r.points.length - 1];
+    if (Math.hypot(last[0] - a[0], last[1] - a[1]) < Math.hypot(first[0] - a[0], first[1] - a[1])) r.points.reverse();
+    r.oneWay = true;
+    restored++;
+  }
+  say(`one-way service roads restored from OSM: ${restored}`);
+}
+write('roads.json', JSON.stringify({ roads }));
 mark('mapng_source/export_report.json', {
   status: 'converted',
   kind: `MapNG report with bundled OSM (${osm.length} features)`,

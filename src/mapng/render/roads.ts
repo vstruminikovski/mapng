@@ -205,3 +205,50 @@ export function buildRouteGuide(points: Vec3[], junction: Vec3): THREE.Group {
   g.userData.gate = gate;
   return g;
 }
+
+/**
+ * Painted direction arrows on one-way service roads (parking aisles etc.), taken from
+ * the OSM oneway tag: a 5 m straight arrow every 20 m, pointing along the road's
+ * point order (= the OSM way direction).
+ */
+export function buildDirectionArrows(roads: ImportedRoad[], every = 20) {
+  const shape = new THREE.Shape();
+  // arrow in local x (forward) / y (left), metres: 0.15 m shaft, 0.6 m head
+  shape.moveTo(-2.5, -0.075);
+  shape.lineTo(1.2, -0.075);
+  shape.lineTo(1.2, -0.3);
+  shape.lineTo(2.5, 0);
+  shape.lineTo(1.2, 0.3);
+  shape.lineTo(1.2, 0.075);
+  shape.lineTo(-2.5, 0.075);
+  shape.closePath();
+  const geo = new THREE.ShapeGeometry(shape).rotateX(-Math.PI / 2); // lie flat; local y → −z
+  const items: { x: number; y: number; z: number; a: number }[] = [];
+  for (const r of roads) {
+    if (!r.oneWay || r.kind !== 'service') continue;
+    const p = r.points;
+    let next = 8, run = 0;
+    for (let i = 0; i < p.length - 1; i++) {
+      const dx = p[i + 1][0] - p[i][0], dy = p[i + 1][1] - p[i][1];
+      const L = Math.hypot(dx, dy);
+      while (run + L >= next) {
+        const t = (next - run) / L;
+        items.push({ x: p[i][0] + dx * t, y: p[i][1] + dy * t, z: p[i][2] + (p[i + 1][2] - p[i][2]) * t, a: Math.atan2(dy, dx) });
+        next += every;
+      }
+      run += L;
+    }
+  }
+  const mesh = new THREE.InstancedMesh(geo, new THREE.MeshStandardMaterial({ color: 0xf4f4ef, roughness: 0.8, polygonOffset: true, polygonOffsetFactor: -4 }), Math.max(1, items.length));
+  const o = new THREE.Object3D();
+  items.forEach((it, k) => {
+    o.position.set(it.x, it.z + 0.075, -it.y);
+    o.rotation.set(0, it.a, 0);
+    o.updateMatrix();
+    mesh.setMatrixAt(k, o.matrix);
+  });
+  mesh.count = items.length;
+  mesh.receiveShadow = true;
+  mesh.name = 'direction-arrows';
+  return mesh;
+}

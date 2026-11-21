@@ -30,3 +30,18 @@ describe('parking layout', () => {
     expect(a.includes(bays[0])).toBe(false);
   });
 });
+
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+
+describe('zoo lot aisles (OSM oneway=yes)', () => {
+  const roads: ImportedRoad[] = JSON.parse(readFileSync(join(__dirname, '..', 'public', 'mapng', 'prviot_krug', 'roads.json'), 'utf8')).roads;
+  const aisle = (id: string) => roads.find((r) => r.id.includes(`parking_aisle_${id}`))!;
+  it('both aisles are one-way and run in opposite directions', () => {
+    const a = aisle('1356920224'), b = aisle('1356920225');
+    expect(a.oneWay && b.oneWay).toBe(true);
+    const dir = (r: ImportedRoad) => r.points[r.points.length - 1][0] - r.points[0][0];
+    expect(dir(a)).toBeGreaterThan(0); // OSM way runs west → east
+    expect(dir(b)).toBeLessThan(0); // and back east → west
+  });
+});

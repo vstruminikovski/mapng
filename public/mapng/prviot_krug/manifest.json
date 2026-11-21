@@ -2,7 +2,7 @@
  "level": "prviot_krug",
  "source": "levels/prviot_krug",
  "sourceTreeSha256": "12a199896d88c2c97cd0edb993122131a1aa17f085c24eb653522662db9835f0",
- "importedAt": "2026-11-21T11:19:29.008Z",
+ "importedAt": "2026-11-21T14:58:17.010Z",
  "tally": {
   "unreadable": 113,
   "not-needed": 52,
@@ -148,7 +148,7 @@
   },
   {
    "file": "network.json",
-   "bytes": 378982
+   "bytes": 378951
   },
   {
    "file": "objects.json",
@@ -156,11 +156,11 @@
   },
   {
    "file": "roads.json",
-   "bytes": 1229199
+   "bytes": 1229184
   },
   {
    "file": "route.json",
-   "bytes": 2409
+   "bytes": 2425
   },
   {
    "file": "terrain_base.png",
@@ -3642,10 +3642,11 @@
  "log": [
   "terrain: 1024x1024, 1 m/sample, 10 m height range",
   "roads: 1715 DecalRoads (352 other, 31 path, 516 gutter, 215 carriageway, 28 zebra, 496 marking, 77 service)",
+  "one-way service roads restored from OSM: 15",
   "OSM street centre lines vs DecalRoads: median 0.50 m over 1403 road vertices",
   "road graph: 366 nodes, 449 edges, 79 junctions",
   "zoo: Zoo Skopje at 392,262; parking lot \"Parking Zone C\" (OSM 32530498) at 435,205",
-  "route: 143 m, 7 graph edges, junction node 334 at 349,218",
+  "route: 142 m, 7 graph edges, junction node 334 at 349,218",
   "objects: 264 parking spots, 83 OSM parking areas, 31 traffic lights, 116 signs, 641 lamps, 731 trees, 1966 barriers",
   "models: 16 building tiles, 16 sidewalk tiles"
  ]
