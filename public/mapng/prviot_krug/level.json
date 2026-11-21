@@ -20,7 +20,7 @@
    -512,
    -512
   ],
-  "baseTexture": "terrain_base.png",
+  "baseTexture": "terrain_base.jpg",
   "layout": "row-major-south-up-uint16"
  },
  "models": [

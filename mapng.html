@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+    <meta name="theme-color" content="#f5f5f7" />
+    <title>Skopje Zoo</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <div id="loading">
+      <h1>Skopje Zoo</h1>
+      <div class="bar"><i></i></div>
+      <p>Loading…</p>
+    </div>
+    <div class="mg-notice" hidden>
+      <div>
+        <h2>Before you drive</h2>
+        <ul>
+          <li>Signs and markings come from OpenStreetMap. They are not verified on site.</li>
+          <li>Traffic-light timing is simulated.</li>
+          <li>No field survey data is loaded.</li>
+          <li>Map data © OpenStreetMap contributors (ODbL).</li>
+        </ul>
+        <button type="button">Start</button>
+      </div>
+    </div>
+    <script type="module" src="/src/mapng/main.ts"></script>
+  </body>
+</html>

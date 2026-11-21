@@ -24,6 +24,12 @@ const LEVEL_BASE = `${import.meta.env.BASE_URL}mapng/prviot_krug`.replace(/\/+/g
 const app = document.getElementById('app')!;
 const loading = document.getElementById('loading')!;
 const status = (s: string) => (loading.querySelector('p')!.textContent = s);
+const barFill = loading.querySelector<HTMLElement>('.bar i')!;
+/** Honest progress: the fraction is what has actually loaded, never a timer. */
+const progress = (f: number, text?: string) => {
+  barFill.style.width = `${Math.round(Math.min(1, Math.max(0, f)) * 100)}%`;
+  if (text) status(text);
+};
 
 boot().catch((e) => {
   console.error(e);
@@ -32,11 +38,11 @@ boot().catch((e) => {
 });
 
 async function boot() {
-  status('Loading map data…');
-  const level = await loadLevel(LEVEL_BASE, (m) => status(`Loading ${m}…`));
+  progress(0.05, 'Loading map data…');
+  const level = await loadLevel(LEVEL_BASE);
 
   // Manual field-survey override layer (optional file; never edits levels/).
-  status('Loading surveyed traffic control…');
+  progress(0.2, 'Loading traffic control…');
   const surveyUrl = `${import.meta.env.BASE_URL}${surveyPath('prviot_krug')}`.replace(/\/+/g, '/');
   const fc: SurveyCollection | null = await fetch(surveyUrl)
     .then((r) => (r.ok ? r.json() : null))
@@ -55,14 +61,14 @@ async function boot() {
   const start = level.route.start; // where the car is placed when the game starts or resets
   const parked = occupied(bays, [start.p]);
 
-  status('Starting physics…');
+  progress(0.3, 'Starting physics…');
   const R = await initRapier();
   const physics = createWorld(R, level.terrain);
   physics.addBoundary(level.terrain); // invisible walls at the map edge
   const kit = createScene(app);
   const { scene, camera, renderer, sun } = kit;
 
-  status('Building terrain and roads…');
+  progress(0.4, 'Building roads…');
   scene.add(buildTerrain(level.terrain, `${LEVEL_BASE}/${level.index.terrain.baseTexture}`));
   scene.add(buildSkirt(level.terrain));
   scene.add(buildRoads(level.roads));
@@ -73,34 +79,42 @@ async function boot() {
   const signalMeshes = buildSignals(level.objects, darkLights, (p, d) => curbside(drivable, p, d, level.terrain.heightAt));
   scene.add(signalMeshes.group);
 
-  // Every building and sidewalk tile of the 1×1 km map: visuals and Rapier trimeshes.
-  const near = level.index.models.filter((m) => m.role === 'buildings' || m.role === 'sidewalks');
-  let done = 0;
+  // Every building and sidewalk tile of the 1×1 km map. Tiles nearest the spawn load
+  // first and gate the start; the rest stream in while you drive.
+  const spawn = start.p;
+  const tiles = level.index.models
+    .filter((m) => m.role === 'buildings' || m.role === 'sidewalks')
+    .sort((a, b) => Math.hypot(a.position[0] - spawn[0], a.position[1] - spawn[1]) - Math.hypot(b.position[0] - spawn[0], b.position[1] - spawn[1]));
+  const FIRST = 8;
   const failed: string[] = [];
+  const addTile = (m: (typeof tiles)[number]) =>
+    loadModel(LEVEL_BASE, m, level.terrain.heightAt)
+      .then((lm) => {
+        scene.add(lm.object);
+        physics.addTrimesh(lm.collision.vertices, lm.collision.indices);
+      })
+      .catch((e) => {
+        failed.push(m.file);
+        console.warn('model failed', m.file, e);
+      });
+  let firstDone = 0;
   await Promise.all(
-    near.map((m) =>
-      loadModel(LEVEL_BASE, m, level.terrain.heightAt)
-        .then((lm) => {
-          scene.add(lm.object);
-          physics.addTrimesh(lm.collision.vertices, lm.collision.indices);
-          status(`Loading buildings and sidewalks… ${++done}/${near.length}`);
-        })
-        .catch((e) => {
-          failed.push(m.file);
-          console.warn('model failed', m.file, e);
-        }),
+    tiles.slice(0, FIRST).map((m) =>
+      addTile(m).then(() => progress(0.45 + (0.5 * ++firstDone) / FIRST, 'Loading buildings…')),
     ),
   );
 
-  // Props for the whole map, minus those that would stand inside a building or on a road.
-  const buildingMeshes: THREE.Mesh[] = [];
-  scene.traverse((o) => {
-    if ((o as THREE.Mesh).isMesh && /^bld/.test(o.name)) buildingMeshes.push(o as THREE.Mesh);
-  });
-  const props = buildProps(level.objects, insideOrOnRoad(buildingMeshes, drivable));
-  scene.add(props);
-  console.info('Props dropped (inside a building or on a road):', props.userData.dropped);
-  for (const w of props.userData.walls as PropInstance[]) physics.addBox(w.pos[0], w.pos[1], w.pos[2], w.yaw, [1.55, 0.15, 0.6]);
+  // Props for the whole map, placed once every building is in (they are dropped where
+  // they would stand inside a building or on a road).
+  const placeProps = () => {
+    const buildingMeshes: THREE.Mesh[] = [];
+    scene.traverse((o) => {
+      if ((o as THREE.Mesh).isMesh && /^bld/.test(o.name)) buildingMeshes.push(o as THREE.Mesh);
+    });
+    const props = buildProps(level.objects, insideOrOnRoad(buildingMeshes, drivable));
+    scene.add(props);
+    for (const w of props.userData.walls as PropInstance[]) physics.addBox(w.pos[0], w.pos[1], w.pos[2], w.yaw, [1.55, 0.15, 0.6]);
+  };
 
   // Player car at the parking start, facing along the aisle.
   const startPos = () => ({ x: start.p[0], y: level.terrain.heightAt(start.p[0], start.p[1]) + 0.9, z: -start.p[1] });
@@ -126,9 +140,8 @@ async function boot() {
   let topDown = false;
   controls.onCamera = () => (topDown = !topDown);
 
-  const hud = makeHud(failed, merged.summary);
+  const hud = makeHud();
 
-  loading.remove();
   const clock = new THREE.Clock();
   let acc = 0;
   const camPos = new THREE.Vector3();
@@ -189,6 +202,20 @@ async function boot() {
     renderer.render(scene, camera);
   });
 
+  // The rest of the map streams in behind the start; props follow once it is all there.
+  void Promise.all(tiles.slice(FIRST).map(addTile)).then(() => placeProps());
+
+  // Ready: hide the loader, show the start notice, then the spawn toast after Start.
+  progress(1, '');
+  loading.classList.add('fade');
+  setTimeout(() => loading.remove(), 450);
+  const notice = document.querySelector<HTMLElement>('.mg-notice')!;
+  notice.hidden = false;
+  notice.querySelector('button')!.addEventListener('click', () => {
+    notice.hidden = true;
+    hud.toast('You are spawned at Skopje Zoo.');
+  });
+
   // test hook
   (window as unknown as Record<string, unknown>).__mapng = { level, vehicle, traffic, failed, scene, camera, renderer, survey: merged, bays, parked };
 }
@@ -236,30 +263,30 @@ function curbside(roads: LevelData['roads'], p: number[], dir: number[], heightA
   return [x, y, heightAt(x, y)];
 }
 
-function makeHud(failed: string[], sv: ReturnType<typeof mergeSurvey>['summary']) {
-  const n = (k: 'signs' | 'lights' | 'markings') => sv[k].survey;
-  const surveyed = n('signs') + n('lights') + n('markings');
+function makeHud() {
   const el = document.createElement('div');
   el.className = 'mg-hud';
   el.innerHTML = `
-    <div class="mg-top">
-      <div class="mg-task"><b>Debar Maalo · open world</b><span class="mg-msg"></span></div>
-    </div>
+    <div class="mg-toast" hidden></div>
     <div class="mg-speed"><b>0</b><span>km/h</span><em>D</em></div>
-    <div class="mg-source" role="note">
-      ${surveyed ? `Field survey: ${n('signs')} signs, ${n('lights')} lights, ${n('markings')} markings. ` : 'No field-survey data yet. '}
-      Other signs, markings and lights: OpenStreetMap via MapNG, <b>not verified</b>.
-      Light timing is <b>simulated</b>. Map data © OpenStreetMap contributors (ODbL).${failed.length ? ` ${failed.length} model tiles failed to load.` : ''}
-    </div>
-    <div class="mg-help">W/↑ gas · S/↓ brake/reverse · A D steer · Space handbrake · R reset · C camera</div>`;
+    <div class="mg-help">W/↑ gas · S/↓ brake · A D steer · Space handbrake · R reset · C camera</div>`;
   document.getElementById('app')!.appendChild(el);
   const sp = el.querySelector<HTMLElement>('.mg-speed b')!;
   const gear = el.querySelector<HTMLElement>('.mg-speed em')!;
+  const toast = el.querySelector<HTMLElement>('.mg-toast')!;
+  let timer = 0;
   return {
     onRestart: () => {},
     update(s: { speed: number; reverse: boolean }) {
       sp.textContent = String(Math.round(Math.abs(s.speed) * 3.6));
       gear.textContent = s.reverse ? 'R' : 'D';
+    },
+    toast(text: string) {
+      toast.textContent = text;
+      toast.hidden = false;
+      toast.classList.remove('gone');
+      clearTimeout(timer);
+      timer = window.setTimeout(() => toast.classList.add('gone'), 4000);
     },
   };
 }

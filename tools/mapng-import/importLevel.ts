@@ -8,6 +8,7 @@
 
 import { createHash } from 'node:crypto';
 import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { spawnSync } from 'node:child_process';
 import { dirname, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildNetwork, routeToNearestJunction } from '../../src/mapng/import/network';
@@ -113,7 +114,17 @@ const hAt = (x: number, y: number) => {
   const j = Math.max(0, Math.min(terSize - 1, Math.round(y - terrainOrigin[1])));
   return (heights.readUInt16LE((j * terSize + i) * 2) / 65535) * maxHeight;
 };
-copy('art/terrains/terrain.png', 'terrain_base.png');
+// Colour texture for the terrain. Re-encoded as JPEG (≈5× smaller, the page loads it on
+// every start) when macOS sips is available; otherwise the PNG is copied unchanged.
+const terrainTexture = (() => {
+  const src = join(SRC, 'art/terrains/terrain.png');
+  const jpg = join(OUT, 'terrain_base.jpg');
+  mkdirSync(OUT, { recursive: true });
+  const r = spawnSync('sips', ['-s', 'format', 'jpeg', '-s', 'formatOptions', '85', src, '--out', jpg], { encoding: 'utf8' });
+  if (r.status === 0 && existsSync(jpg)) return 'terrain_base.jpg';
+  copy('art/terrains/terrain.png', 'terrain_base.png');
+  return 'terrain_base.png';
+})();
 mark('art/terrains/terrain.ter', { status: 'converted', kind: `terrain heightmap v${terVersion}`, output: 'terrain_height.u16' });
 mark('terrain.terrain.json', { status: 'converted', kind: 'terrain descriptor', output: 'level.json' });
 mark('art/terrains/terrain.png', { status: 'copied', kind: 'terrain colour texture (2048², hybrid imagery)', output: 'terrain_base.png' });
@@ -390,7 +401,7 @@ const index: LevelIndex = {
     squareSize: terrainBlock?.squareSize ?? 1,
     maxHeight,
     origin: terrainOrigin,
-    baseTexture: 'terrain_base.png',
+    baseTexture: terrainTexture,
     layout: 'row-major-south-up-uint16',
   },
   models,

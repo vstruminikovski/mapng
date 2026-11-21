@@ -2,7 +2,7 @@
  "level": "prviot_krug",
  "source": "levels/prviot_krug",
  "sourceTreeSha256": "12a199896d88c2c97cd0edb993122131a1aa17f085c24eb653522662db9835f0",
- "importedAt": "2026-11-21T14:58:17.010Z",
+ "importedAt": "2026-11-21T15:14:34.535Z",
  "tally": {
   "unreadable": 113,
   "not-needed": 52,
@@ -163,8 +163,8 @@
    "bytes": 2425
   },
   {
-   "file": "terrain_base.png",
-   "bytes": 8788410
+   "file": "terrain_base.jpg",
+   "bytes": 2219665
   },
   {
    "file": "terrain_height.u16",
