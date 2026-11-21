@@ -16,6 +16,8 @@ import { buildSkirt, buildTerrain } from './render/terrain';
 import { SignalSystem } from './traffic/signals';
 import { Traffic } from './traffic/traffic';
 import type { PropInstance, Vec3 } from './import/types';
+import { bayLines, layoutParking, occupied } from './import/parkingLayout';
+import { buildParkedCars } from './render/parking';
 import { convertSurvey, frameOf, mergeSurvey, surveyPath, type SurveyCollection } from './import/manualSurvey';
 
 const LEVEL_BASE = `${import.meta.env.BASE_URL}mapng/prviot_krug`.replace(/\/+/g, '/');
@@ -46,6 +48,10 @@ async function boot() {
   if (sv.rejected.length) console.warn('Survey features rejected (not placed):', sv.rejected);
   if (sv.unmodelledSigns.length) console.info('Surveyed signs placed without a dedicated 3D sign model:', sv.unmodelledSigns);
   const darkLights = merged.lights.filter((l) => l.controllerId === null);
+  // Parking bays from map geometry (OSM lot outlines + aisles), painted and partly filled.
+  const bays = layoutParking(level.objects, level.roads, level.terrain.heightAt);
+  level.roads = [...level.roads, ...bayLines(bays)];
+  const parked = occupied(bays, [level.route.start.p]);
   status('Starting physics…');
   const R = await initRapier();
   const physics = createWorld(R, level.terrain);
@@ -58,6 +64,8 @@ async function boot() {
   status('Building terrain and roads…');
   scene.add(buildTerrain(level.terrain, `${LEVEL_BASE}/${level.index.terrain.baseTexture}`));
   scene.add(buildSkirt(level.terrain));
+  scene.add(buildParkedCars(parked));
+  for (const b of parked) physics.addBox(b.x, b.y, b.z, b.heading, [2.05, 0.88, 0.75]);
   scene.add(buildRoads(level.roads));
   const guide = buildRouteGuide(route.points, route.end.p);
   orientGate(guide.userData.gate, route.points, route.end.p);
@@ -211,7 +219,7 @@ async function boot() {
     elapsed = 0;
   };
   // test hook
-  (window as unknown as Record<string, unknown>).__mapng = { level, vehicle, traffic, failed, scene, camera, renderer, survey: merged };
+  (window as unknown as Record<string, unknown>).__mapng = { level, vehicle, traffic, failed, scene, camera, renderer, survey: merged, bays, parked };
 }
 
 /** Distance from (x, y) to the nearest drivable road edge (negative = on the road), with that road's direction. */
