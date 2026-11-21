@@ -9,6 +9,7 @@ export interface SceneKit {
   camera: THREE.PerspectiveCamera;
   sun: THREE.DirectionalLight;
   resize(): void;
+  sky: THREE.Mesh;
 }
 
 export function createScene(canvasHost: HTMLElement): SceneKit {
@@ -24,7 +25,7 @@ export function createScene(canvasHost: HTMLElement): SceneKit {
   const scene = new THREE.Scene();
   // Late-afternoon sky gradient (the level's HDR cubemaps are not browser-readable).
   const sky = new THREE.Mesh(
-    new THREE.SphereGeometry(1800, 32, 16),
+    new THREE.SphereGeometry(600, 24, 12), // inside the far plane; follows the camera
     new THREE.ShaderMaterial({
       side: THREE.BackSide,
       depthWrite: false,
@@ -35,8 +36,9 @@ export function createScene(canvasHost: HTMLElement): SceneKit {
     }),
   );
   sky.renderOrder = -1;
+  sky.frustumCulled = false;
   scene.add(sky);
-  scene.fog = new THREE.Fog(0xe9dcc4, 250, 1100);
+  scene.fog = new THREE.Fog(0xe9dcc4, 260, 620); // distant haze hides the view edge
   // soft image-based light so glass and wet asphalt pick up reflections
   const pmrem = new THREE.PMREMGenerator(renderer);
   scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
@@ -57,7 +59,7 @@ export function createScene(canvasHost: HTMLElement): SceneKit {
   sun.shadow.bias = -0.0004;
   scene.add(sun, sun.target);
 
-  const camera = new THREE.PerspectiveCamera(60, 1, 0.1, 2500);
+  const camera = new THREE.PerspectiveCamera(60, 1, 0.5, 640); // the map is 1 km; nothing past ~600 m is drawn
   const resize = () => {
     const w = canvasHost.clientWidth || window.innerWidth;
     const h = canvasHost.clientHeight || window.innerHeight;
@@ -67,7 +69,7 @@ export function createScene(canvasHost: HTMLElement): SceneKit {
   };
   window.addEventListener('resize', resize);
   resize();
-  return { renderer, scene, camera, sun, resize };
+  return { renderer, scene, camera, sun, resize, sky };
 }
 
 /** Keep the shadow frustum centred on the car. */

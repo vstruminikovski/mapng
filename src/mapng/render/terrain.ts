@@ -82,3 +82,64 @@ export function buildSkirt(t: Terrain, out = 1500, step = 16): THREE.Mesh {
   mesh.name = 'terrain-skirt';
   return mesh;
 }
+
+/** One chunk of the terrain at a given sample step (LOD). Coordinates are sample indices. */
+function patch(t: Terrain, i0: number, j0: number, n: number, step: number, tex: THREE.Texture): THREE.Mesh {
+  const N = t.size;
+  const m = Math.floor(n / step) + 1; // vertices per side
+  const pos = new Float32Array(m * m * 3);
+  const uv = new Float32Array(m * m * 2);
+  for (let j = 0; j < m; j++)
+    for (let i = 0; i < m; i++) {
+      const si = Math.min(N - 1, i0 + i * step), sj = Math.min(N - 1, j0 + j * step);
+      const k = j * m + i;
+      pos[k * 3] = t.origin[0] + si * t.squareSize;
+      pos[k * 3 + 1] = t.heights[sj * N + si] - 0.04; // sit just under decals and slabs
+      pos[k * 3 + 2] = -(t.origin[1] + sj * t.squareSize);
+      uv[k * 2] = si / (N - 1);
+      uv[k * 2 + 1] = sj / (N - 1); // image top = north
+    }
+  const idx = new Uint32Array((m - 1) * (m - 1) * 6);
+  let o = 0;
+  for (let j = 0; j < m - 1; j++)
+    for (let i = 0; i < m - 1; i++) {
+      const a = j * m + i, b = a + 1, c = a + m, d = c + 1;
+      idx.set([a, b, c, b, d, c], o);
+      o += 6;
+    }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  g.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
+  g.setIndex(new THREE.BufferAttribute(idx, 1));
+  g.computeVertexNormals();
+  const mesh = new THREE.Mesh(g, new THREE.MeshStandardMaterial({ map: tex, roughness: 0.95, metalness: 0 }));
+  mesh.receiveShadow = true;
+  return mesh;
+}
+
+/**
+ * Terrain as square chunks, each with a near (fine) and a far (coarse) mesh. The caller
+ * shows the right one per chunk by distance (see `chunks` in userData), so only the
+ * ground around the car is drawn at full detail.
+ */
+export function buildTerrainChunks(t: Terrain, textureUrl: string, chunk = 128, near = 2, far = 8): THREE.Group {
+  const g = new THREE.Group();
+  g.name = 'terrain';
+  const tex = new THREE.TextureLoader().load(textureUrl);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.anisotropy = 8;
+  const chunks: { cx: number; cy: number; near: THREE.Mesh; far: THREE.Mesh }[] = [];
+  const N = t.size;
+  for (let j0 = 0; j0 < N - 1; j0 += chunk)
+    for (let i0 = 0; i0 < N - 1; i0 += chunk) {
+      const n = Math.min(chunk, N - 1 - i0, N - 1 - j0);
+      const cx = t.origin[0] + (i0 + n / 2) * t.squareSize;
+      const cy = t.origin[1] + (j0 + n / 2) * t.squareSize;
+      const a = patch(t, i0, j0, n, near, tex), b = patch(t, i0, j0, n, far, tex);
+      a.name = b.name = 'terrain-chunk';
+      g.add(a, b);
+      chunks.push({ cx, cy, near: a, far: b });
+    }
+  g.userData.chunks = chunks;
+  return g;
+}

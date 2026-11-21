@@ -12,7 +12,7 @@ import { loadModel } from './render/models';
 import { buildProps, buildSignals } from './render/props';
 import { buildDirectionArrows, buildRoads } from './render/roads';
 import { createScene, followSun } from './render/scene';
-import { buildSkirt, buildTerrain } from './render/terrain';
+import { buildSkirt, buildTerrainChunks } from './render/terrain';
 import { SignalSystem } from './traffic/signals';
 import { Traffic } from './traffic/traffic';
 import type { PropInstance } from './import/types';
@@ -84,10 +84,11 @@ async function boot() {
   const physics = createWorld(R, level.terrain);
   physics.addBoundary(level.terrain); // invisible walls at the map edge
   const kit = createScene(app);
-  const { scene, camera, renderer, sun } = kit;
+  const { scene, camera, renderer, sun, sky } = kit;
 
   progress(0.4, 'Building roads…');
-  scene.add(buildTerrain(level.terrain, `${LEVEL_BASE}/${level.index.terrain.baseTexture}`));
+  const terrain = buildTerrainChunks(level.terrain, `${LEVEL_BASE}/${level.index.terrain.baseTexture}`);
+  scene.add(terrain);
   scene.add(buildSkirt(level.terrain));
   scene.add(buildRoads(level.roads));
   scene.add(buildDirectionArrows(level.roads));
@@ -100,9 +101,12 @@ async function boot() {
   // Attach the first tiles (already parsed) and wait for them.
   let firstDone = 0;
   const firstTiles = await Promise.all(firstParsed.map((p) => p.then((r) => (progress(0.45 + (0.5 * ++firstDone) / FIRST, 'Loading buildings…'), r))));
+  const tileMeshes: { x: number; y: number; obj: THREE.Object3D }[] = [];
+  const propCells: { x: number; y: number; group: THREE.Group }[] = [];
   const attach = (r: Awaited<ReturnType<typeof parse>>) => {
     if (!r) return;
     scene.add(r.lm.object);
+    tileMeshes.push({ x: r.m.position[0], y: r.m.position[1], obj: r.lm.object });
     physics.addTrimesh(r.lm.collision.vertices, r.lm.collision.indices);
   };
   firstTiles.forEach(attach);
@@ -114,9 +118,20 @@ async function boot() {
     scene.traverse((o) => {
       if ((o as THREE.Mesh).isMesh && /^bld/.test(o.name)) buildingMeshes.push(o as THREE.Mesh);
     });
-    const props = buildProps(level.objects, insideOrOnRoad(buildingMeshes, drivable));
-    scene.add(props);
-    for (const w of props.userData.walls as PropInstance[]) physics.addBox(w.pos[0], w.pos[1], w.pos[2], w.yaw, [1.55, 0.15, 0.6]);
+    const blocked = insideOrOnRoad(buildingMeshes, drivable);
+    // props are grouped in 256 m cells so distant cells can be hidden as a whole
+    const CELL = 256;
+    const cellKey = (p: { pos: number[] }) => `${Math.floor((p.pos[0] + 512) / CELL)},${Math.floor((p.pos[1] + 512) / CELL)}`;
+    const o = level.objects;
+    const keys = new Set([...o.trees, ...o.lamps, ...o.fences, ...o.signs].map(cellKey));
+    for (const k of keys) {
+      const pick = <T extends { pos: number[] }>(arr: T[]) => arr.filter((p) => cellKey(p) === k);
+      const group = buildProps({ ...o, trees: pick(o.trees), lamps: pick(o.lamps), fences: pick(o.fences), signs: pick(o.signs) }, blocked);
+      const [cx, cy] = k.split(',').map(Number);
+      scene.add(group);
+      propCells.push({ x: cx * CELL - 512 + CELL / 2, y: cy * CELL - 512 + CELL / 2, group });
+      for (const w of group.userData.walls as PropInstance[]) physics.addBox(w.pos[0], w.pos[1], w.pos[2], w.yaw, [1.55, 0.15, 0.6]);
+    }
   };
 
   // Player car at the parking start, facing along the aisle.
@@ -145,6 +160,21 @@ async function boot() {
 
   const hud = makeHud();
 
+  // Only what is near the car is drawn: terrain detail, buildings, prop cells and traffic.
+  const DRAW = 480; // metres
+  const near2 = (x: number, y: number, r: number, ox: number, oy: number) => Math.hypot(x - ox, y - oy) < r;
+  const cull = (x: number, y: number) => {
+    for (const c of terrain.userData.chunks as { cx: number; cy: number; near: THREE.Mesh; far: THREE.Mesh }[]) {
+      const d = Math.hypot(c.cx - x, c.cy - y);
+      c.near.visible = d < 230;
+      c.far.visible = d >= 230 && d < DRAW + 150;
+    }
+    for (const t of tileMeshes) t.obj.visible = near2(x, y, DRAW + 200, t.x, t.y);
+    for (const c of propCells) c.group.visible = near2(x, y, DRAW + 150, c.x, c.y);
+    traffic.cars.forEach((c, i) => (aiMeshes[i].visible = near2(x, y, DRAW, c.pose.x, c.pose.y)));
+    traffic.peds.forEach((p, i) => (pedMeshes[i].visible = near2(x, y, DRAW, p.pose.x, p.pose.y)));
+    sky.position.copy(camera.position);
+  };
   const clock = new THREE.Clock();
   let acc = 0;
   const camPos = new THREE.Vector3();
@@ -185,6 +215,7 @@ async function boot() {
     traffic.update(dt, { x: wx, y: wy, z: t.y, heading, speed });
     traffic.cars.forEach((c, i) => placeOnPose(aiMeshes[i], c.pose, level.terrain.heightAt));
     traffic.peds.forEach((p, i) => placeOnPose(pedMeshes[i], p.pose, level.terrain.heightAt));
+    cull(wx, wy);
     signalMeshes.update((id) => signals.state(id, traffic.clock));
     hud.update({ speed, reverse: input.reverse });
 

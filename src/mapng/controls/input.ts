@@ -36,8 +36,10 @@ export class Controls {
     pad.className = 'mg-touch';
     pad.innerHTML = `
       <div class="mg-col mg-tl"><button data-act="reset" aria-label="Reset">↺</button><button data-act="cam" aria-label="Camera">◎</button></div>
-      <div class="mg-col mg-bl"><button data-act="left" aria-label="Steer left">‹</button><button data-act="right" aria-label="Steer right">›</button></div>
-      <div class="mg-col mg-br"><button data-act="hand" aria-label="Handbrake">P</button><button data-act="brake" aria-label="Brake or reverse">■</button><button data-act="gas" aria-label="Gas">▲</button></div>`;
+      <div class="mg-bar">
+        <div class="mg-col"><button data-act="left" aria-label="Steer left">‹</button><button data-act="right" aria-label="Steer right">›</button></div>
+        <div class="mg-col"><button data-act="hand" aria-label="Handbrake">P</button><button data-act="brake" aria-label="Brake or reverse">■</button><button data-act="gas" aria-label="Gas">▲</button></div>
+      </div>`;
     root.appendChild(pad);
     for (const b of pad.querySelectorAll<HTMLButtonElement>('button')) {
       const act = b.dataset.act as Act;
