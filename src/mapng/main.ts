@@ -41,6 +41,24 @@ async function boot() {
   progress(0.05, 'Loading map data…');
   const level = await loadLevel(LEVEL_BASE);
 
+  // Buildings nearest the spawn start parsing now, in parallel with physics and the
+  // roads. They gate the start; every other tile streams in while you drive.
+  const spawn = level.route.start.p;
+  const tiles = level.index.models
+    .filter((m) => m.role === 'buildings' || m.role === 'sidewalks')
+    .sort((a, b) => Math.hypot(a.position[0] - spawn[0], a.position[1] - spawn[1]) - Math.hypot(b.position[0] - spawn[0], b.position[1] - spawn[1]));
+  const FIRST = 6;
+  const failed: string[] = [];
+  const parse = (m: (typeof tiles)[number]) =>
+    loadModel(LEVEL_BASE, m, level.terrain.heightAt)
+      .then((lm) => ({ m, lm }))
+      .catch((e) => {
+        failed.push(m.file);
+        console.warn('model failed', m.file, e);
+        return null;
+      });
+  const firstParsed = tiles.slice(0, FIRST).map(parse);
+
   // Manual field-survey override layer (optional file; never edits levels/).
   progress(0.2, 'Loading traffic control…');
   const surveyUrl = `${import.meta.env.BASE_URL}${surveyPath('prviot_krug')}`.replace(/\/+/g, '/');
@@ -79,30 +97,15 @@ async function boot() {
   const signalMeshes = buildSignals(level.objects, darkLights, (p, d) => curbside(drivable, p, d, level.terrain.heightAt));
   scene.add(signalMeshes.group);
 
-  // Every building and sidewalk tile of the 1×1 km map. Tiles nearest the spawn load
-  // first and gate the start; the rest stream in while you drive.
-  const spawn = start.p;
-  const tiles = level.index.models
-    .filter((m) => m.role === 'buildings' || m.role === 'sidewalks')
-    .sort((a, b) => Math.hypot(a.position[0] - spawn[0], a.position[1] - spawn[1]) - Math.hypot(b.position[0] - spawn[0], b.position[1] - spawn[1]));
-  const FIRST = 8;
-  const failed: string[] = [];
-  const addTile = (m: (typeof tiles)[number]) =>
-    loadModel(LEVEL_BASE, m, level.terrain.heightAt)
-      .then((lm) => {
-        scene.add(lm.object);
-        physics.addTrimesh(lm.collision.vertices, lm.collision.indices);
-      })
-      .catch((e) => {
-        failed.push(m.file);
-        console.warn('model failed', m.file, e);
-      });
+  // Attach the first tiles (already parsed) and wait for them.
   let firstDone = 0;
-  await Promise.all(
-    tiles.slice(0, FIRST).map((m) =>
-      addTile(m).then(() => progress(0.45 + (0.5 * ++firstDone) / FIRST, 'Loading buildings…')),
-    ),
-  );
+  const firstTiles = await Promise.all(firstParsed.map((p) => p.then((r) => (progress(0.45 + (0.5 * ++firstDone) / FIRST, 'Loading buildings…'), r))));
+  const attach = (r: Awaited<ReturnType<typeof parse>>) => {
+    if (!r) return;
+    scene.add(r.lm.object);
+    physics.addTrimesh(r.lm.collision.vertices, r.lm.collision.indices);
+  };
+  firstTiles.forEach(attach);
 
   // Props for the whole map, placed once every building is in (they are dropped where
   // they would stand inside a building or on a road).
@@ -203,7 +206,7 @@ async function boot() {
   });
 
   // The rest of the map streams in behind the start; props follow once it is all there.
-  void Promise.all(tiles.slice(FIRST).map(addTile)).then(() => placeProps());
+  void Promise.all(tiles.slice(FIRST).map((m) => parse(m).then(attach))).then(() => placeProps());
 
   // Ready: hide the loader, show the start notice, then the spawn toast after Start.
   progress(1, '');

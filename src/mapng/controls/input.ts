@@ -1,87 +1,71 @@
-// Keyboard + touch controls producing a DriveInput each frame.
-// Keys: W/↑ throttle, S/↓ brake (hold at standstill → reverse), A/D or ←/→ steer,
-// Space handbrake, R reset to route start, C camera.
+// Keyboard (desktop) and on-screen buttons (touch) producing a DriveInput each frame.
+// Keys: W/↑ gas, S/↓ brake (hold at standstill → reverse), A/D or ←/→ steer,
+// Space handbrake, R reset to start, C camera.
 
 import type { DriveInput } from '../physics/vehicle';
 
+type Act = 'left' | 'right' | 'gas' | 'brake' | 'hand' | 'reset' | 'cam';
+
 export class Controls {
   private keys = new Set<string>();
-  private touch = { throttle: 0, brake: 0, steer: 0 };
+  private held = new Set<Act>();
   private steer = 0;
   reverse = false;
   onReset?: () => void;
   onCamera?: () => void;
-  private disposers: (() => void)[] = [];
 
-  constructor(private root: HTMLElement) {
-    const down = (e: KeyboardEvent) => {
+  constructor(root: HTMLElement) {
+    window.addEventListener('keydown', (e) => {
       if (e.repeat) return;
       this.keys.add(e.code);
       if (e.code === 'KeyR') this.onReset?.();
       if (e.code === 'KeyC') this.onCamera?.();
       if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space'].includes(e.code)) e.preventDefault();
-    };
-    const up = (e: KeyboardEvent) => this.keys.delete(e.code);
-    const blur = () => this.keys.clear();
-    window.addEventListener('keydown', down);
-    window.addEventListener('keyup', up);
-    window.addEventListener('blur', blur);
-    this.disposers.push(() => {
-      window.removeEventListener('keydown', down);
-      window.removeEventListener('keyup', up);
-      window.removeEventListener('blur', blur);
     });
-    this.buildTouch();
+    window.addEventListener('keyup', (e) => this.keys.delete(e.code));
+    window.addEventListener('blur', () => this.keys.clear());
+    this.buildButtons(root);
   }
 
-  private buildTouch() {
+  private buildButtons(root: HTMLElement) {
     const pad = document.createElement('div');
     pad.className = 'mg-touch';
     pad.innerHTML = `
-      <div class="mg-steer" data-zone="steer"><span>◀</span><span>▶</span></div>
-      <div class="mg-pedals">
-        <button data-zone="brake" aria-label="Brake">■</button>
-        <button data-zone="throttle" aria-label="Throttle">▲</button>
-      </div>`;
-    this.root.appendChild(pad);
-    const steerZone = pad.querySelector<HTMLElement>('[data-zone=steer]')!;
-    const track = new Map<number, string>();
-    const apply = (e: PointerEvent, zone: string) => {
-      if (zone === 'steer') {
-        const r = steerZone.getBoundingClientRect();
-        this.touch.steer = Math.max(-1, Math.min(1, ((e.clientX - r.left) / r.width) * 2 - 1));
-      } else this.touch[zone as 'throttle' | 'brake'] = 1;
-    };
-    pad.addEventListener('pointerdown', (e) => {
-      const zone = (e.target as HTMLElement).closest<HTMLElement>('[data-zone]')?.dataset.zone;
-      if (!zone) return;
-      e.preventDefault();
-      (e.target as HTMLElement).setPointerCapture(e.pointerId);
-      track.set(e.pointerId, zone);
-      apply(e, zone);
-    });
-    pad.addEventListener('pointermove', (e) => {
-      const zone = track.get(e.pointerId);
-      if (zone) apply(e, zone);
-    });
-    const end = (e: PointerEvent) => {
-      const zone = track.get(e.pointerId);
-      track.delete(e.pointerId);
-      if (zone === 'steer') this.touch.steer = 0;
-      else if (zone) this.touch[zone as 'throttle' | 'brake'] = 0;
-    };
-    pad.addEventListener('pointerup', end);
-    pad.addEventListener('pointercancel', end);
+      <div class="mg-col mg-tl"><button data-act="reset" aria-label="Reset">↺</button><button data-act="cam" aria-label="Camera">◎</button></div>
+      <div class="mg-col mg-bl"><button data-act="left" aria-label="Steer left">◀</button><button data-act="right" aria-label="Steer right">▶</button></div>
+      <div class="mg-col mg-br"><button data-act="hand" aria-label="Handbrake">P</button><button data-act="brake" aria-label="Brake or reverse">■</button><button data-act="gas" aria-label="Gas">▲</button></div>`;
+    root.appendChild(pad);
+    for (const b of pad.querySelectorAll<HTMLButtonElement>('button')) {
+      const act = b.dataset.act as Act;
+      const down = (e: PointerEvent) => {
+        e.preventDefault();
+        try {
+          b.setPointerCapture(e.pointerId); // keep the press even if the finger leaves the button
+        } catch {
+          /* no active pointer to capture: the press still counts */
+        }
+        if (act === 'reset') this.onReset?.();
+        else if (act === 'cam') this.onCamera?.();
+        else this.held.add(act);
+      };
+      const up = () => this.held.delete(act);
+      b.addEventListener('pointerdown', down);
+      b.addEventListener('pointerup', up);
+      b.addEventListener('pointercancel', up);
+      b.addEventListener('lostpointercapture', up);
+      b.addEventListener('contextmenu', (e) => e.preventDefault());
+    }
   }
 
   read(dt: number, speed: number): DriveInput {
     const k = (...c: string[]) => c.some((x) => this.keys.has(x));
-    const thr = Math.max(k('KeyW', 'ArrowUp') ? 1 : 0, this.touch.throttle);
-    const brk = Math.max(k('KeyS', 'ArrowDown') ? 1 : 0, this.touch.brake);
-    const target = this.touch.steer || (k('KeyD', 'ArrowRight') ? 1 : 0) - (k('KeyA', 'ArrowLeft') ? 1 : 0);
-    // keyboard steering ramps so tapping gives small corrections
-    const rate = target === 0 ? 4 : 2.5;
-    this.steer += Math.max(-rate * dt, Math.min(rate * dt, target - this.steer));
+    const h = (a: Act) => this.held.has(a);
+    const thr = k('KeyW', 'ArrowUp') || h('gas') ? 1 : 0;
+    const brk = k('KeyS', 'ArrowDown') || h('brake') ? 1 : 0;
+    const dir = (k('KeyD', 'ArrowRight') || h('right') ? 1 : 0) - (k('KeyA', 'ArrowLeft') || h('left') ? 1 : 0);
+    // steering ramps so taps give small corrections; holding turns fully
+    const rate = dir === 0 ? 4 : 2.5;
+    this.steer += Math.max(-rate * dt, Math.min(rate * dt, dir - this.steer));
 
     // S at standstill selects reverse; W at standstill selects drive
     if (Math.abs(speed) < 0.4) {
@@ -90,10 +74,6 @@ export class Controls {
     }
     const throttle = this.reverse ? brk : thr;
     const brake = this.reverse ? thr : brk;
-    return { throttle, brake, steer: this.steer, handbrake: k('Space'), reverse: this.reverse };
-  }
-
-  dispose() {
-    this.disposers.forEach((d) => d());
+    return { throttle, brake, steer: this.steer, handbrake: k('Space') || h('hand'), reverse: this.reverse };
   }
 }

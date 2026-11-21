@@ -131,7 +131,7 @@ body {
 }
 .mg-toast {
   position: absolute;
-  top: 18px;
+  top: 74px;
   left: 50%;
   transform: translateX(-50%);
   padding: 9px 16px;
@@ -148,8 +148,8 @@ body {
 }
 .mg-speed {
   position: absolute;
-  right: 18px;
-  bottom: 18px;
+  left: 18px;
+  top: 18px;
   padding: 8px 14px;
   border-radius: 14px;
   background: var(--card);
@@ -187,8 +187,67 @@ body {
   background: var(--card);
   backdrop-filter: blur(12px);
 }
-@media (max-width: 720px), (pointer: coarse) {
+/* on-screen controls: touch screens only */
+.mg-touch {
+  display: none;
+}
+@media (pointer: coarse) {
   .mg-help {
     display: none;
+  }
+  .mg-touch {
+    display: block;
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  .mg-col {
+    position: absolute;
+    display: flex;
+    gap: 10px;
+  }
+  .mg-tl {
+    top: 18px;
+    right: 18px;
+    flex-direction: column;
+  }
+  .mg-bl {
+    left: 18px;
+    bottom: 18px;
+  }
+  .mg-br {
+    right: 18px;
+    bottom: 18px;
+    align-items: flex-end;
+    flex-direction: row-reverse;
+  }
+  .mg-touch button {
+    pointer-events: auto;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+    width: 60px;
+    height: 60px;
+    border: 0;
+    border-radius: 50%;
+    background: var(--card);
+    backdrop-filter: blur(12px);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+    font: 600 22px -apple-system, system-ui, sans-serif;
+    color: var(--ink);
+  }
+  .mg-touch button:active {
+    background: rgba(255, 255, 255, 1);
+    transform: scale(0.96);
+  }
+  .mg-tl button {
+    width: 48px;
+    height: 48px;
+    font-size: 18px;
+  }
+  .mg-br button[data-act='hand'] {
+    width: 48px;
+    height: 48px;
+    font-size: 16px;
   }
 }
