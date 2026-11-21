@@ -1,0 +1,27 @@
+{
+  "name": "mapng",
+  "private": true,
+  "version": "0.1.0",
+  "description": "MapNG route game: drive from the Zoo Skopje parking lot through the nearest junction (Three.js + Rapier, SUMO-style traffic).",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "mapng:import": "vite-node tools/mapng-import/importLevel.ts",
+    "citygis": "vite-node tools/mapng-import/cityGis.ts"
+  },
+  "dependencies": {
+    "@dimforge/rapier3d-compat": "0.21.0",
+    "three": "0.169.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.1",
+    "@types/three": "0.169.0",
+    "typescript": "5.6.3",
+    "vite": "5.4.11",
+    "vitest": "2.1.5"
+  }
+}
