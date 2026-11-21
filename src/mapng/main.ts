@@ -11,7 +11,7 @@ import { carMesh, pedMesh, placeOnPose } from './render/actors';
 import { loadModel } from './render/models';
 import { buildProps, buildSignals } from './render/props';
 import { buildDirectionArrows, buildRoads } from './render/roads';
-import { createScene, followSun } from './render/scene';
+import { createScene, followSun, isTouchDevice } from './render/scene';
 import { buildSkirt, buildTerrain } from './render/terrain';
 import { SignalSystem } from './traffic/signals';
 import { Traffic } from './traffic/traffic';
@@ -126,7 +126,7 @@ async function boot() {
   scene.add(car);
 
   const signals = new SignalSystem(level.objects.signals);
-  const traffic = new Traffic(level.network, level.roads, signals, { center: [0, 0], radius: 800, cars: 70, pedestrians: 80 });
+  const traffic = new Traffic(level.network, level.roads, signals, { center: [0, 0], radius: 800, cars: isTouchDevice() ? 35 : 70, pedestrians: isTouchDevice() ? 40 : 80 });
   const aiMeshes = traffic.cars.map((c) => {
     const m = carMesh(c.color, false);
     scene.add(m);
