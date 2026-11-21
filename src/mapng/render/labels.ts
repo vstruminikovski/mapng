@@ -17,35 +17,44 @@ const PLACE_FONT = 20; // canvas px (half of the previous 40)
 const PLACE_H = 1.3; // sprite height, m (half of the previous 2.6)
 const ROOF_CLEARANCE = 1.5; // m between the roof and the bottom of a place label
 
+const SS = 4; // supersampling: canvas is drawn at 4× so text stays sharp at any distance
+
+/** Text on a rounded box, drawn at SS× the nominal size; the box keeps its shape at any width. */
 function textCanvas(text: string, px: number, color: string, bg: string | null) {
+  const f = px * SS;
+  const font = `600 ${f}px -apple-system, system-ui, sans-serif`;
   const c = document.createElement('canvas');
   const x = c.getContext('2d')!;
-  x.font = `600 ${px}px -apple-system, system-ui, sans-serif`;
-  const w = Math.ceil(x.measureText(text).width) + px;
+  x.font = font;
+  const pad = f * 0.55;
+  const w = Math.ceil(x.measureText(text).width + pad * 2);
+  const h = Math.ceil(f * 1.5);
   c.width = w;
-  c.height = Math.ceil(px * 1.6);
+  c.height = h;
   const ctx = c.getContext('2d')!;
   if (bg) {
     ctx.fillStyle = bg;
     ctx.beginPath();
-    ctx.roundRect(0, 0, c.width, c.height, c.height / 2);
+    const r = h / 2;
+    ctx.moveTo(r, 0);
+    ctx.lineTo(w - r, 0);
+    ctx.arc(w - r, r, r, -Math.PI / 2, Math.PI / 2);
+    ctx.lineTo(r, h);
+    ctx.arc(r, r, r, Math.PI / 2, (3 * Math.PI) / 2);
+    ctx.closePath();
     ctx.fill();
   }
-  ctx.font = `600 ${px}px -apple-system, system-ui, sans-serif`;
+  ctx.font = font;
   ctx.fillStyle = color;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  ctx.fillText(text, c.width / 2, c.height / 2 + 1);
+  ctx.fillText(text, w / 2, h / 2 + f * 0.04);
   const t = new THREE.CanvasTexture(c);
   t.colorSpace = THREE.SRGBColorSpace;
-  t.anisotropy = 4;
-  return { tex: t, aspect: c.width / c.height };
+  t.anisotropy = 8;
+  return { tex: t, aspect: w / h };
 }
 
-/**
- * `roofAt(x, y)` returns the top of the building at that spot (metres) or null when
- * there is no building; place labels sit above that top, or above the ground.
- */
 export function buildNames(names: NamesFile, terrain: Terrain, roofAt: (x: number, y: number) => number | null): THREE.Group {
   const g = new THREE.Group();
   g.name = 'names';
@@ -77,7 +86,7 @@ export function buildNames(names: NamesFile, terrain: Terrain, roofAt: (x: numbe
     );
     plane.rotation.x = -Math.PI / 2;
     plane.rotation.z = theta;
-    plane.position.set(mx, terrain.heightAt(mx, my) + 0.12, -my);
+    plane.position.set(mx, terrain.heightAt(mx, my) + 0.3, -my); // clear of the road surface
     plane.renderOrder = 5;
     g.add(plane);
   }
@@ -85,7 +94,9 @@ export function buildNames(names: NamesFile, terrain: Terrain, roofAt: (x: numbe
   // place names: sprite above the roof of the building (or above the ground if none)
   for (const p of names.places) {
     const { tex, aspect } = textCanvas(p.name, PLACE_FONT, '#ffffff', 'rgba(20,20,22,0.62)');
-    const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false }));
+    // drawn on top of buildings, so the name is readable from the street at any angle
+    const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false, depthTest: false }));
+    s.renderOrder = 10;
     s.scale.set(PLACE_H * aspect, PLACE_H, 1);
     const roof = roofAt(p.x, p.y);
     const base = roof ?? terrain.heightAt(p.x, p.y) + 3; // no building: 3 m above ground
