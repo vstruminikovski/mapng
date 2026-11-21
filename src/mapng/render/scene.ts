@@ -59,6 +59,7 @@ export function createScene(canvasHost: HTMLElement): SceneKit {
   sc.near = 10;
   sc.far = 500;
   sun.shadow.bias = -0.0004;
+  sun.shadow.normalBias = 0.03; // removes shadow acne on the flat asphalt
   scene.add(sun, sun.target);
 
   const camera = new THREE.PerspectiveCamera(60, 1, 0.5, 640); // the map is 1 km; nothing past ~600 m is drawn
@@ -74,8 +75,16 @@ export function createScene(canvasHost: HTMLElement): SceneKit {
   return { renderer, scene, camera, sun, resize, sky };
 }
 
-/** Keep the shadow frustum centred on the car. */
+/** Shadow map texel size in metres (frustum 140 m over 2048 texels). */
+const TEXEL = 140 / 2048;
+
+/**
+ * Keep the shadow frustum centred on the car, snapped to whole shadow texels so the
+ * shadow edges don't shimmer as the car moves.
+ */
 export function followSun(sun: THREE.DirectionalLight, target: THREE.Vector3) {
-  sun.target.position.copy(target);
-  sun.position.set(target.x - 120, target.y + 160, target.z + 80);
+  const x = Math.round(target.x / TEXEL) * TEXEL;
+  const z = Math.round(target.z / TEXEL) * TEXEL;
+  sun.target.position.set(x, target.y, z);
+  sun.position.set(x - 120, target.y + 160, z + 80);
 }

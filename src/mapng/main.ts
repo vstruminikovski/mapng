@@ -26,8 +26,11 @@ const loading = document.getElementById('loading')!;
 const errorText = loading.querySelector<HTMLElement>('.error-text')!;
 const barFill = loading.querySelector<HTMLElement>('.bar i')!;
 /** Honest progress: the fraction is what has actually loaded, never a timer. */
-const progress = (f: number, _what?: string) => {
-  barFill.style.width = `${Math.round(Math.min(1, Math.max(0, f)) * 100)}%`;
+const pct = loading.querySelector<HTMLElement>('.pct')!;
+const progress = (f: number) => {
+  const v = Math.round(Math.min(1, Math.max(0, f)) * 100);
+  barFill.style.width = `${v}%`;
+  pct.textContent = `${v}%`;
 };
 
 boot().catch((e) => {
@@ -37,7 +40,7 @@ boot().catch((e) => {
 });
 
 async function boot() {
-  progress(0.05, 'Loading map data…');
+  progress(0.05);
   const level = await loadLevel(LEVEL_BASE);
 
   // Buildings nearest the spawn start parsing now, in parallel with physics and the
@@ -59,7 +62,7 @@ async function boot() {
   const firstParsed = tiles.slice(0, FIRST).map(parse);
 
   // Manual field-survey override layer (optional file; never edits levels/).
-  progress(0.2, 'Loading traffic control…');
+  progress(0.2);
   const surveyUrl = `${import.meta.env.BASE_URL}${surveyPath('prviot_krug')}`.replace(/\/+/g, '/');
   const fc: SurveyCollection | null = await fetch(surveyUrl)
     .then((r) => (r.ok ? r.json() : null))
@@ -78,14 +81,14 @@ async function boot() {
   const start = level.route.start; // where the car is placed when the game starts or resets
   const parked = occupied(bays, [start.p]);
 
-  progress(0.3, 'Starting physics…');
+  progress(0.3);
   const R = await initRapier();
   const physics = createWorld(R, level.terrain);
   physics.addBoundary(level.terrain); // invisible walls at the map edge
   const kit = createScene(app);
   const { scene, camera, renderer, sun, sky } = kit;
 
-  progress(0.4, 'Building roads…');
+  progress(0.4);
   const terrain = buildTerrainChunks(level.terrain, `${LEVEL_BASE}/${level.index.terrain.baseTexture}`);
   scene.add(terrain);
   scene.add(buildSkirt(level.terrain));
@@ -99,7 +102,7 @@ async function boot() {
 
   // Attach the first tiles (already parsed) and wait for them.
   let firstDone = 0;
-  const firstTiles = await Promise.all(firstParsed.map((p) => p.then((r) => (progress(0.45 + (0.45 * ++firstDone) / tiles.length, 'Loading buildings…'), r))));
+  const firstTiles = await Promise.all(firstParsed.map((p) => p.then((r) => (progress(0.45 + (0.45 * ++firstDone) / tiles.length), r))));
   const tileMeshes: { x: number; y: number; obj: THREE.Object3D }[] = [];
   const propCells: { x: number; y: number; group: THREE.Group }[] = [];
   const attach = (r: Awaited<ReturnType<typeof parse>>) => {
@@ -189,17 +192,31 @@ async function boot() {
     acc = Math.min(acc + dt, 2 / 60);
     // during the countdown the car is held still: brake on, no steering, no physics
     const input = running ? controls.read(dt, vehicle.speed()) : HELD;
+    // Physics runs in fixed 1/60 s steps; the car is drawn between the last two steps
+    // (interpolated), so motion stays smooth whatever the screen refresh rate.
+    const sample = () => ({ p: vehicle.body.translation(), q: vehicle.body.rotation() });
+    let prev = sample(), curr = prev;
     while (running && acc >= 1 / 60) {
       vehicle.update(input, 1 / 60);
       physics.step(1 / 60);
+      prev = curr;
+      curr = sample();
       acc -= 1 / 60;
     }
-
-    // player pose
-    const t = vehicle.body.translation();
-    const q = vehicle.body.rotation();
-    car.position.set(t.x, t.y - 0.42, t.z);
-    car.quaternion.set(q.x, q.y, q.z, q.w);
+    const alpha = running ? acc * 60 : 1;
+    const t = vehicle.body.translation(); // physics position: gameplay checks use this
+    if (Math.hypot(curr.p.x - prev.p.x, curr.p.z - prev.p.z) > 3) prev = curr; // reset/teleport: no smear
+    const drawP = new THREE.Vector3(
+      prev.p.x + (curr.p.x - prev.p.x) * alpha,
+      prev.p.y + (curr.p.y - prev.p.y) * alpha,
+      prev.p.z + (curr.p.z - prev.p.z) * alpha,
+    );
+    const drawQ = new THREE.Quaternion(prev.q.x, prev.q.y, prev.q.z, prev.q.w).slerp(
+      new THREE.Quaternion(curr.q.x, curr.q.y, curr.q.z, curr.q.w),
+      alpha,
+    );
+    car.position.set(drawP.x, drawP.y - 0.42, drawP.z);
+    car.quaternion.copy(drawQ);
     const wheels: THREE.Object3D[] = car.userData.wheels;
     wheels.forEach((w, i) => {
       const s = vehicle.wheel(i);
@@ -224,7 +241,7 @@ async function boot() {
     hud.update({ speed, reverse: input.reverse });
 
     // camera
-    const target = new THREE.Vector3(t.x, t.y, t.z);
+    const target = drawP.clone();
     const flat = new THREE.Vector3(fwd.x, 0, fwd.z).normalize();
     const want = topDown
       ? target.clone().add(new THREE.Vector3(0, 60, 0.01))
@@ -245,13 +262,13 @@ async function boot() {
   let loaded = firstDone;
   for (const m of tiles.slice(FIRST)) {
     attach(await parse(m));
-    progress(0.45 + (0.45 * ++loaded) / tiles.length, 'Loading buildings…');
+    progress(0.45 + (0.45 * ++loaded) / tiles.length);
     await new Promise((r) => setTimeout(r, 0));
   }
-  progress(0.92, 'Placing trees and props…');
+  progress(0.92);
   await new Promise((r) => setTimeout(r, 0));
   placeProps();
-  progress(1, '');
+  progress(1);
 
   // The game screen appears now; 3 · 2 · 1 counts down over it, then the car is live.
   loading.classList.add('fade');
