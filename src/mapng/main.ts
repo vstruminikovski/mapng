@@ -10,9 +10,10 @@ import { createWorld, initRapier } from './physics/world';
 import { carMesh, pedMesh, placeOnPose } from './render/actors';
 import { loadModel } from './render/models';
 import { buildProps, buildSignals } from './render/props';
-import { buildDirectionArrows, buildRoads } from './render/roads';
+import { buildRoads } from './render/roads';
 import { createScene, followSun } from './render/scene';
 import { buildSkirt, buildTerrainChunks } from './render/terrain';
+import { loadTerrainTexture } from './render/terrain';
 import { SignalSystem } from './traffic/signals';
 import { Traffic } from './traffic/traffic';
 import type { PropInstance } from './import/types';
@@ -89,11 +90,10 @@ async function boot() {
   const { scene, camera, renderer, sun, sky } = kit;
 
   progress(0.4);
-  const terrain = buildTerrainChunks(level.terrain, `${LEVEL_BASE}/${level.index.terrain.baseTexture}`);
+  const terrain = buildTerrainChunks(level.terrain, await loadTerrainTexture(`${LEVEL_BASE}/${level.index.terrain.baseTexture}`));
   scene.add(terrain);
   scene.add(buildSkirt(level.terrain));
   scene.add(buildRoads(level.roads));
-  scene.add(buildDirectionArrows(level.roads));
   scene.add(buildParkedCars(parked));
   for (const b of parked) physics.addBox(b.x, b.y, b.z, b.heading, [2.05, 0.88, 0.75]);
   const drivable = level.roads.filter((r) => r.kind === 'carriageway' || r.kind === 'service');
@@ -268,6 +268,9 @@ async function boot() {
   progress(0.92);
   await new Promise((r) => setTimeout(r, 0));
   placeProps();
+  // the real flag model from the map export, at its exported position (no collision)
+  const flagTile = level.index.models.find((m) => m.role === 'flag');
+  if (flagTile) await loadModel(LEVEL_BASE, flagTile, level.terrain.heightAt).then((lm) => scene.add(lm.object)).catch((e) => console.warn('flag model failed', e));
   progress(1);
 
   // The game screen appears now; 3 · 2 · 1 counts down over it, then the car is live.

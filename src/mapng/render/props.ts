@@ -25,10 +25,30 @@ function instanced(geo: THREE.BufferGeometry, mat: THREE.Material, items: PropIn
   return m;
 }
 
-/**
- * Props for the whole map. Trees, lamps, fences and walls that would stand inside a
- * building or on a carriageway are dropped (`blocked`); signs are never dropped.
- */
+/** Leaf clusters on a transparent canvas: gaps in the foliage show the sky behind. */
+const foliageCache = new Map<number, THREE.CanvasTexture>();
+function foliageTexture(hue: number): THREE.CanvasTexture {
+  const key = Math.round(hue * 1000);
+  const cached = foliageCache.get(key);
+  if (cached) return cached;
+  const c = document.createElement('canvas');
+  c.width = c.height = 256;
+  const x = c.getContext('2d')!;
+  let seed = key;
+  const r = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+  for (let i = 0; i < 46; i++) {
+    const cx = 20 + r() * 216, cy = 20 + r() * 216, rad = 10 + r() * 22;
+    x.fillStyle = `hsl(${hue * 360 + (r() - 0.5) * 16}, ${34 + r() * 14}%, ${24 + r() * 16}%)`;
+    x.beginPath();
+    x.arc(cx, cy, rad, 0, Math.PI * 2);
+    x.fill();
+  }
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.SRGBColorSpace;
+  foliageCache.set(key, t);
+  return t;
+}
+
 export function buildProps(objects: LevelObjects, blocked: Blocked = () => false) {
   const g = new THREE.Group();
   g.name = 'props';
@@ -38,34 +58,65 @@ export function buildProps(objects: LevelObjects, blocked: Blocked = () => false
     items.filter((p) => ok(p) || ((dropped[kind] = (dropped[kind] ?? 0) + 1), false));
 
   const trees = keep('trees', objects.trees);
-  const trunk = new THREE.CylinderGeometry(0.18, 0.28, 3, 6).translate(0, 1.5, 0);
-  const crown = new THREE.IcosahedronGeometry(2.6, 1).translate(0, 4.6, 0);
+  // Trees: a cylinder trunk and foliage cards (leaf clusters with gaps you can see
+  // through), three crossed cards per tree, one draw call per species.
   const sz = (t: PropInstance) => (/small|sml|bush/.test(t.type) ? 0.6 : /large|huge/.test(t.type) ? 1.35 : 1) * t.scale;
+  const species = (t: string) => (/aspen/.test(t) ? 'aspen' : /holm/.test(t) ? 'holm' : /beech/.test(t) ? 'beech' : 'oak');
+  const trunk = new THREE.CylinderGeometry(0.18, 0.28, 3, 6).translate(0, 1.5, 0);
   g.add(instanced(trunk, new THREE.MeshStandardMaterial({ color: 0x5a4330 }), trees, (o, t) => o.scale.setScalar(sz(t))));
-  const crowns = instanced(crown, new THREE.MeshStandardMaterial({ color: 0x4f7a3a, roughness: 1, flatShading: true }), trees, (o, t) =>
-    o.scale.setScalar(sz(t)),
-  );
-  const col = new THREE.Color();
-  trees.forEach((t, i) => crowns.setColorAt(i, col.setHSL(0.24 + ((i * 37) % 10) / 160, 0.38, 0.28 + ((i * 13) % 7) / 70)));
-  g.add(crowns);
+  const shapes: Record<string, { w: number; h: number; base: number; hue: number }> = {
+    aspen: { w: 2.4, h: 5.0, base: 2.0, hue: 0.26 },
+    beech: { w: 5.0, h: 4.4, base: 2.4, hue: 0.25 },
+    oak: { w: 5.2, h: 4.6, base: 2.2, hue: 0.24 },
+    holm: { w: 4.4, h: 3.6, base: 2.6, hue: 0.27 },
+  };
+  for (const kind of Object.keys(shapes)) {
+    const items = trees.filter((t) => species(t.type) === kind);
+    if (!items.length) continue;
+    const sh = shapes[kind];
+    const mat = new THREE.MeshStandardMaterial({ map: foliageTexture(sh.hue), alphaTest: 0.5, side: THREE.DoubleSide, roughness: 1 });
+    const card = new THREE.PlaneGeometry(sh.w, sh.h).translate(0, sh.base + sh.h / 2, 0);
+    for (const k of [0, Math.PI / 3, (2 * Math.PI) / 3]) {
+      g.add(instanced(card, mat, items, (o, t) => {
+        o.scale.setScalar(sz(t));
+        o.rotation.y = t.yaw + k;
+      }));
+    }
+  }
 
   // Lamp posts only. 'mapng_lamp_glow' entries are the light halos (~2.4 m from each
   // post, 7 m up), not posts, and stadium floodlights have no stand-in mesh.
   const lamps = keep('lamps', objects.lamps.filter((l) => !/stadium|glow/.test(l.type)));
-  const pole = new THREE.CylinderGeometry(0.07, 0.1, 7, 6).translate(0, 3.5, 0);
-  g.add(instanced(pole, new THREE.MeshStandardMaterial({ color: 0x3b3f44, metalness: 0.6, roughness: 0.4 }), lamps, () => {}));
+  // Street lamp: a tapered pole with a curved-looking arm and a flat luminaire head, from
+  // the data positions (the lamp arm reaches along the lamp's local +x, the road side).
+  const steel = new THREE.MeshStandardMaterial({ color: 0x4a4f55, metalness: 0.6, roughness: 0.4 });
+  const pole = new THREE.CylinderGeometry(0.06, 0.1, 7.2, 8).translate(0, 3.6, 0);
+  const arm = new THREE.BoxGeometry(1.5, 0.08, 0.08).translate(0.7, 7.1, 0);
+  const head = new THREE.BoxGeometry(0.7, 0.1, 0.28).translate(1.4, 7.05, 0);
+  g.add(instanced(pole, steel, lamps, () => {}));
+  g.add(instanced(arm, steel, lamps, () => {}));
+  g.add(instanced(head, new THREE.MeshStandardMaterial({ color: 0xd9d4c4, roughness: 0.5 }), lamps, () => {}));
 
   // Pedestrian rails: 2 m panels along the model's local y; the exported point is the
   // top rail (~0.87 m above the pavement), so the panel hangs down from it.
   const fences = keep('fences', objects.fences.filter((f) => /fence_pedestrian/.test(f.type)));
-  const rail = new THREE.BoxGeometry(0.05, 0.9, 2).translate(0, -0.45, 0);
-  g.add(instanced(rail, new THREE.MeshStandardMaterial({ color: 0x8a9096, metalness: 0.5 }), fences, () => {}));
+  // metal railing: a top bar and a bottom bar, with posts at both ends of each 2 m panel
+  const bars = new THREE.BoxGeometry(2, 0.04, 0.04).translate(0, -0.05, 0);
+  const bar2 = new THREE.BoxGeometry(2, 0.04, 0.04).translate(0, -0.6, 0);
+  const post = new THREE.BoxGeometry(0.05, 0.9, 0.05).translate(0, -0.45, 0);
+  const rail = new THREE.MeshStandardMaterial({ color: 0x6f757b, metalness: 0.5, roughness: 0.5 });
+  g.add(instanced(bars, rail, fences, () => {}));
+  g.add(instanced(bar2, rail, fences, () => {}));
+  g.add(instanced(post, rail, fences, (o) => o.translateX(-1)));
+  g.add(instanced(post, rail, fences, (o) => o.translateX(1)));
 
   // Garden / boundary walls: ~3.1 m segments (the measured spacing) along local x, on the ground.
   const wall = new THREE.BoxGeometry(3.1, 1.2, 0.3).translate(0, 0.6, 0);
+  const coping = new THREE.BoxGeometry(3.2, 0.08, 0.42).translate(0, 1.24, 0); // stone cap
   const stone = keep('walls', objects.fences.filter((f) => f.type === 'italy_wall_stone'));
   const concrete = keep('walls', objects.fences.filter((f) => f.type === 'italy_wall_concrete'));
   g.add(instanced(wall, new THREE.MeshStandardMaterial({ color: 0x9a8f7e, roughness: 1 }), stone, () => {}));
+  g.add(instanced(coping, new THREE.MeshStandardMaterial({ color: 0xc9c2b2, roughness: 0.9 }), stone, () => {}));
   g.add(instanced(wall, new THREE.MeshStandardMaterial({ color: 0xb4b2ab, roughness: 0.95 }), concrete, () => {}));
   g.userData.dropped = dropped;
   g.userData.walls = [...stone, ...concrete]; // for physics: solid, unlike the rails

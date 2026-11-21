@@ -122,12 +122,9 @@ function patch(t: Terrain, i0: number, j0: number, n: number, step: number, tex:
  * shows the right one per chunk by distance (see `chunks` in userData), so only the
  * ground around the car is drawn at full detail.
  */
-export function buildTerrainChunks(t: Terrain, textureUrl: string, chunk = 128, near = 2, far = 8): THREE.Group {
+export function buildTerrainChunks(t: Terrain, tex: THREE.Texture, chunk = 128, near = 2, far = 8): THREE.Group {
   const g = new THREE.Group();
   g.name = 'terrain';
-  const tex = new THREE.TextureLoader().load(textureUrl);
-  tex.colorSpace = THREE.SRGBColorSpace;
-  tex.anisotropy = 8;
   const chunks: { cx: number; cy: number; near: THREE.Mesh; far: THREE.Mesh }[] = [];
   const N = t.size;
   for (let j0 = 0; j0 < N - 1; j0 += chunk)
@@ -142,4 +139,15 @@ export function buildTerrainChunks(t: Terrain, textureUrl: string, chunk = 128, 
     }
   g.userData.chunks = chunks;
   return g;
+}
+
+/** The map's colour image as a texture (no added detail). */
+export function loadTerrainTexture(url: string): Promise<THREE.Texture> {
+  return new Promise((res, rej) => {
+    new THREE.TextureLoader().load(url, (tex) => {
+      tex.colorSpace = THREE.SRGBColorSpace;
+      tex.anisotropy = 8;
+      res(tex);
+    }, undefined, () => rej(new Error('terrain texture failed to load')));
+  });
 }

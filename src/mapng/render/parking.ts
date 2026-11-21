@@ -3,6 +3,7 @@
 import * as THREE from 'three';
 import type { Bay } from '../import/parkingLayout';
 
+// real-world car colours: silver, white, graphite, black, grey, beige, deep blue, deep red
 const PAINT = [0xd8d4cc, 0x2b3a55, 0x8c1c13, 0x3d5a40, 0x111111, 0xb0b5b9, 0x6b4e2e, 0xe8e8e8, 0x4a4f57, 0x1f3f6e];
 
 export function buildParkedCars(bays: Bay[]) {
