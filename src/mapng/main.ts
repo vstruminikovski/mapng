@@ -208,16 +208,11 @@ async function boot() {
   // The rest of the map streams in behind the start; props follow once it is all there.
   void Promise.all(tiles.slice(FIRST).map((m) => parse(m).then(attach))).then(() => placeProps());
 
-  // Ready: hide the loader, show the start notice, then the spawn toast after Start.
+  // Ready: hide the loader and greet the player once.
   progress(1, '');
   loading.classList.add('fade');
   setTimeout(() => loading.remove(), 450);
-  const notice = document.querySelector<HTMLElement>('.mg-notice')!;
-  notice.hidden = false;
-  notice.querySelector('button')!.addEventListener('click', () => {
-    notice.hidden = true;
-    hud.toast('You are spawned at Skopje Zoo.');
-  });
+  hud.toast('You are spawned at Skopje Zoo.');
 
   // test hook
   (window as unknown as Record<string, unknown>).__mapng = { level, vehicle, traffic, failed, scene, camera, renderer, survey: merged, bays, parked };

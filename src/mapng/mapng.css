@@ -2,7 +2,8 @@
 :root {
   --ink: #1d1d1f;
   --ink-2: #6e6e73;
-  --card: rgba(255, 255, 255, 0.86);
+  --card: rgba(255, 255, 255, 0.32);
+  --glyph: rgba(20, 20, 24, 0.7);
   --line: rgba(0, 0, 0, 0.08);
   --accent: #0071e3;
   color-scheme: light;
@@ -72,54 +73,6 @@ body {
   color: #b3261e;
 }
 
-/* start notice */
-.mg-notice {
-  position: fixed;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  background: rgba(0, 0, 0, 0.18);
-  z-index: 9;
-}
-.mg-notice[hidden] {
-  display: none;
-}
-.mg-notice div {
-  max-width: 380px;
-  margin: 16px;
-  padding: 24px;
-  background: #fff;
-  border-radius: 16px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.18);
-  font-size: 14px;
-  line-height: 1.45;
-  color: var(--ink);
-}
-.mg-notice h2 {
-  margin: 0 0 10px;
-  font-size: 17px;
-  font-weight: 600;
-}
-.mg-notice ul {
-  margin: 0 0 18px;
-  padding-left: 18px;
-  color: var(--ink-2);
-}
-.mg-notice li + li {
-  margin-top: 4px;
-}
-.mg-notice button {
-  font: inherit;
-  font-weight: 600;
-  width: 100%;
-  padding: 11px;
-  border: 0;
-  border-radius: 10px;
-  background: var(--accent);
-  color: #fff;
-  cursor: pointer;
-}
-
 /* in-game */
 .mg-hud {
   position: absolute;
@@ -137,9 +90,8 @@ body {
   padding: 9px 16px;
   border-radius: 999px;
   background: var(--card);
-  backdrop-filter: blur(12px);
+  color: var(--glyph);
   font-size: 13px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
   transition: opacity 0.6s ease;
   white-space: nowrap;
 }
@@ -150,14 +102,13 @@ body {
   position: absolute;
   left: 18px;
   top: 18px;
-  padding: 8px 14px;
+  padding: 6px 12px;
   border-radius: 14px;
   background: var(--card);
-  backdrop-filter: blur(12px);
+  color: var(--glyph);
   display: flex;
   align-items: baseline;
   gap: 6px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
 }
 .mg-speed b {
   font-size: 30px;
@@ -176,18 +127,51 @@ body {
   color: var(--ink-2);
   margin-left: 6px;
 }
+@media (max-width: 900px) {
+  .mg-help {
+    display: none;
+  }
+}
 .mg-help {
   position: absolute;
-  left: 18px;
+  left: 50%;
+  transform: translateX(-50%);
   bottom: 18px;
+  white-space: nowrap;
   font-size: 12px;
-  color: var(--ink-2);
-  padding: 7px 12px;
+  color: var(--glyph);
+  padding: 6px 10px;
   border-radius: 10px;
   background: var(--card);
-  backdrop-filter: blur(12px);
 }
-/* on-screen controls: touch screens only */
+/* steering wheel: small and light, bottom left, every device */
+.mg-wheel {
+  position: absolute;
+  left: 20px;
+  bottom: 20px;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.55);
+  color: rgba(29, 29, 31, 0.78);
+  pointer-events: auto;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: grab;
+  display: grid;
+  place-items: center;
+  will-change: transform;
+}
+.mg-wheel:active {
+  cursor: grabbing;
+}
+.mg-wheel svg {
+  width: 60%;
+  height: 60%;
+}
+
+/* on-screen pedals: touch screens only */
 .mg-touch {
   display: none;
 }
@@ -208,16 +192,12 @@ body {
   }
   .mg-tl {
     top: 18px;
-    right: 18px;
+    right: 20px;
     flex-direction: column;
   }
-  .mg-bl {
-    left: 18px;
-    bottom: 18px;
-  }
   .mg-br {
-    right: 18px;
-    bottom: 18px;
+    right: 20px;
+    bottom: 20px;
     align-items: flex-end;
     flex-direction: row-reverse;
   }
@@ -226,28 +206,37 @@ body {
     touch-action: none;
     user-select: none;
     -webkit-user-select: none;
-    width: 60px;
-    height: 60px;
+    width: 56px;
+    height: 56px;
     border: 0;
     border-radius: 50%;
     background: var(--card);
-    backdrop-filter: blur(12px);
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
-    font: 600 22px -apple-system, system-ui, sans-serif;
-    color: var(--ink);
+    font: 400 18px -apple-system, system-ui, sans-serif;
+    color: var(--glyph);
   }
   .mg-touch button:active {
-    background: rgba(255, 255, 255, 1);
+    background: rgba(255, 255, 255, 0.6);
     transform: scale(0.96);
   }
   .mg-tl button {
-    width: 48px;
-    height: 48px;
-    font-size: 18px;
-  }
-  .mg-br button[data-act='hand'] {
-    width: 48px;
-    height: 48px;
+    width: 44px;
+    height: 44px;
     font-size: 16px;
   }
+  .mg-br button[data-act='hand'] {
+    width: 44px;
+    height: 44px;
+    font-size: 14px;
+  }
+}
+
+#loading .credit {
+  position: absolute;
+  bottom: 18px;
+  left: 16px;
+  right: 16px;
+  font-size: 9px;
+  line-height: 1.4;
+  color: var(--ink-2);
+  opacity: 0.7;
 }
