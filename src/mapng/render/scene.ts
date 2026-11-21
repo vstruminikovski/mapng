@@ -11,15 +11,11 @@ export interface SceneKit {
   resize(): void;
 }
 
-export const isTouchDevice = () => matchMedia('(pointer: coarse)').matches;
-
 export function createScene(canvasHost: HTMLElement): SceneKit {
-  // Phones and tablets: smaller render target, no MSAA, cheaper shadows.
-  const touch = isTouchDevice();
-  const renderer = new THREE.WebGLRenderer({ antialias: !touch, powerPreference: 'high-performance' });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, touch ? 1.5 : 2));
+  const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   renderer.shadowMap.enabled = true;
-  renderer.shadowMap.type = touch ? THREE.PCFShadowMap : THREE.PCFSoftShadowMap;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.05;
@@ -50,7 +46,7 @@ export function createScene(canvasHost: HTMLElement): SceneKit {
   const sun = new THREE.DirectionalLight(0xffe2b8, 2.4);
   sun.position.set(-120, 160, 80);
   sun.castShadow = true;
-  sun.shadow.mapSize.set(touch ? 1024 : 2048, touch ? 1024 : 2048);
+  sun.shadow.mapSize.set(2048, 2048);
   const sc = sun.shadow.camera;
   sc.left = -70;
   sc.right = 70;

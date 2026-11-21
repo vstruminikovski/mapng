@@ -144,89 +144,60 @@ body {
   border-radius: 10px;
   background: var(--card);
 }
-/* steering wheel: small and light, bottom left, every device */
-.mg-wheel {
+/* on-screen buttons: every device. Standard driving layout: steer bottom left,
+   pedals bottom right, reset and camera top right. */
+.mg-touch {
   position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.mg-col {
+  position: absolute;
+  display: flex;
+  gap: 12px;
+}
+.mg-tl {
+  top: 18px;
+  right: 20px;
+  flex-direction: column;
+}
+.mg-bl {
   left: 20px;
   bottom: 20px;
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.55);
-  color: rgba(29, 29, 31, 0.78);
+}
+.mg-br {
+  right: 20px;
+  bottom: 20px;
+  align-items: flex-end;
+  flex-direction: row-reverse;
+}
+.mg-touch button {
   pointer-events: auto;
   touch-action: none;
   user-select: none;
   -webkit-user-select: none;
-  cursor: grab;
-  display: grid;
-  place-items: center;
-  will-change: transform;
+  width: 56px;
+  height: 56px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--card);
+  font: 400 20px -apple-system, system-ui, sans-serif;
+  color: var(--glyph);
+  cursor: pointer;
 }
-.mg-wheel:active {
-  cursor: grabbing;
+.mg-touch button:active {
+  background: rgba(255, 255, 255, 0.6);
+  transform: scale(0.96);
 }
-.mg-wheel svg {
-  width: 60%;
-  height: 60%;
+.mg-tl button,
+.mg-br button[data-act='hand'] {
+  width: 44px;
+  height: 44px;
+  font-size: 16px;
 }
-
-/* on-screen pedals: touch screens only */
-.mg-touch {
-  display: none;
-}
-@media (pointer: coarse) {
+@media (max-width: 900px) {
   .mg-help {
     display: none;
-  }
-  .mg-touch {
-    display: block;
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-  }
-  .mg-col {
-    position: absolute;
-    display: flex;
-    gap: 10px;
-  }
-  .mg-tl {
-    top: 18px;
-    right: 20px;
-    flex-direction: column;
-  }
-  .mg-br {
-    right: 20px;
-    bottom: 20px;
-    align-items: flex-end;
-    flex-direction: row-reverse;
-  }
-  .mg-touch button {
-    pointer-events: auto;
-    touch-action: none;
-    user-select: none;
-    -webkit-user-select: none;
-    width: 56px;
-    height: 56px;
-    border: 0;
-    border-radius: 50%;
-    background: var(--card);
-    font: 400 18px -apple-system, system-ui, sans-serif;
-    color: var(--glyph);
-  }
-  .mg-touch button:active {
-    background: rgba(255, 255, 255, 0.6);
-    transform: scale(0.96);
-  }
-  .mg-tl button {
-    width: 44px;
-    height: 44px;
-    font-size: 16px;
-  }
-  .mg-br button[data-act='hand'] {
-    width: 44px;
-    height: 44px;
-    font-size: 14px;
   }
 }
 
