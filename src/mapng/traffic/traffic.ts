@@ -1,10 +1,10 @@
 // AI traffic and pedestrians on the imported road graph, with SUMO's Krauss
-// car-following, signal stops and a gap-acceptance junction rule.
+// car-following, signal stops and pedestrian crossings.
 // Pure simulation in world axes (x east, y north); rendering lives in render/.
 
 import type { RoadNetwork } from '../import/network';
 import type { GraphEdge, ImportedRoad, Vec3 } from '../import/types';
-import { PASSENGER, PEDESTRIAN, acceptsGap, kraussSpeed, stopSpeed, type VType } from './sumoModels';
+import { PASSENGER, PEDESTRIAN, kraussSpeed, stopSpeed, type VType } from './sumoModels';
 import type { SignalSystem } from './signals';
 
 const URBAN_LIMIT = 50 / 3.6;
@@ -90,11 +90,10 @@ export class Traffic {
   private lanes: Lane[] = [];
   private out = new Map<number, Lane[]>();
   private rand: () => number;
-  private junctionClaims = new Map<number, { car: number; until: number }>();
   private time = 0;
 
   constructor(
-    private net: RoadNetwork,
+    net: RoadNetwork,
     roads: ImportedRoad[],
     private signals: SignalSystem,
     opts: TrafficOptions,
@@ -186,7 +185,6 @@ export class Traffic {
 
   update(dt: number, player: Pose & { speed: number }) {
     this.time += dt;
-    for (const [n, c] of this.junctionClaims) if (c.until < this.time) this.junctionClaims.delete(n);
 
     for (const car of this.cars) {
       const lane = car.lane;
@@ -218,21 +216,13 @@ export class Traffic {
       }
       let v = kraussSpeed(car.type, car.v, gap, vLead, vMax, dt, this.rand());
 
-      // stop line: red/yellow signal, or junction claimed by a crossing car
+      // stop line: red/yellow signal only (no junction priority rules)
       const toEnd = lane.path.length - car.s;
       let mustStop = false;
       if (lane.signal !== null) {
         const st = this.signals.state(lane.signal, this.time);
         const stopDist = toEnd - STOP_BACK;
         if (st === 'red' || (st === 'yellow' && stopDist > (car.v * car.v) / (2 * car.type.decel))) mustStop = stopDist > -1;
-      } else if (this.net.nodes[lane.toNode]?.junction && toEnd < 25) {
-        const arrive = toEnd / Math.max(car.v, 1);
-        const claim = this.junctionClaims.get(lane.toNode);
-        const others = this.cars
-          .filter((o) => o !== car && o.lane.toNode === lane.toNode && o.lane.edge !== lane.edge)
-          .map((o) => (o.lane.path.length - o.s) / Math.max(o.v, 1));
-        if ((claim && claim.car !== car.id) || !acceptsGap(arrive, others.filter((t) => t < arrive))) mustStop = true;
-        else this.junctionClaims.set(lane.toNode, { car: car.id, until: this.time + arrive + 3 });
       }
       if (mustStop) v = Math.min(v, stopSpeed(car.type, car.v, toEnd - STOP_BACK, dt));
 

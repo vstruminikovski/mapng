@@ -1,7 +1,7 @@
 // Road surfaces, markings and crossings as ribbons along the DecalRoad nodes.
 
 import * as THREE from 'three';
-import type { ImportedRoad, Vec3 } from '../import/types';
+import type { ImportedRoad } from '../import/types';
 import { asphalt, asphaltPhoto } from './materials';
 
 let asphaltTex: ReturnType<typeof asphalt> | null = null;
@@ -145,65 +145,6 @@ function stripeTexture() {
   t.wrapS = t.wrapT = THREE.RepeatWrapping;
   t.repeat.set(4, 1);
   return t;
-}
-
-/** Glowing guide ribbon with chevrons along the route, plus a gate at the junction. */
-export function buildRouteGuide(points: Vec3[], junction: Vec3): THREE.Group {
-  const g = new THREE.Group();
-  g.name = 'route';
-  const pts = points.map((p) => [p[0], p[1], p[2], 1.1] as [number, number, number, number]);
-  const { pos, along } = ribbon(pts, 0.11);
-  const geo = new THREE.BufferGeometry();
-  geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
-  geo.setAttribute('uv', new THREE.Float32BufferAttribute(along.flatMap((s, k) => [k % 2, s]), 2));
-  const idx: number[] = [];
-  for (let i = 0; i < pts.length - 1; i++) idx.push(i * 2, i * 2 + 1, i * 2 + 2, i * 2 + 1, i * 2 + 3, i * 2 + 2);
-  geo.setIndex(idx);
-  const c = document.createElement('canvas');
-  c.width = 64;
-  c.height = 64;
-  const x = c.getContext('2d')!;
-  x.fillStyle = 'rgba(255,190,60,0.35)';
-  x.fillRect(0, 0, 64, 64);
-  x.fillStyle = 'rgba(255,214,120,1)';
-  x.beginPath();
-  x.moveTo(8, 18);
-  x.lineTo(32, 46);
-  x.lineTo(56, 18);
-  x.lineTo(56, 30);
-  x.lineTo(32, 58);
-  x.lineTo(8, 30);
-  x.fill();
-  const tex = new THREE.CanvasTexture(c);
-  tex.wrapT = THREE.RepeatWrapping;
-  tex.repeat.set(1, 1 / 3);
-  tex.rotation = Math.PI; // chevrons point along +v (direction of travel)
-  tex.center.set(0.5, 0.5);
-  const mat = new THREE.MeshBasicMaterial({ map: tex, transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -6 });
-  const ribbonMesh = new THREE.Mesh(geo, mat);
-  ribbonMesh.renderOrder = 6;
-  ribbonMesh.userData.tex = tex;
-  g.add(ribbonMesh);
-
-  // junction gate: two posts and a banner
-  const gate = new THREE.Group();
-  const post = new THREE.MeshStandardMaterial({ color: 0xf2a93b, emissive: 0x6a3a00 });
-  for (const s of [-1, 1]) {
-    const m = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, 4), post);
-    m.position.set(0, 2, s * 6.5);
-    gate.add(m);
-  }
-  const ring = new THREE.Mesh(
-    new THREE.TorusGeometry(6.6, 0.12, 8, 48, Math.PI),
-    new THREE.MeshBasicMaterial({ color: 0xffc35a, transparent: true, opacity: 0.85 }),
-  );
-  ring.rotation.y = Math.PI / 2;
-  ring.position.y = 4;
-  gate.add(ring);
-  gate.position.set(junction[0], junction[2], -junction[1]);
-  g.add(gate);
-  g.userData.gate = gate;
-  return g;
 }
 
 /**
