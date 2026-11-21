@@ -99,7 +99,8 @@ export function buildProps(objects: LevelObjects, blocked: Blocked = () => false
 
   // Pedestrian rails: 2 m panels along the model's local y; the exported point is the
   // top rail (~0.87 m above the pavement), so the panel hangs down from it.
-  const fences = keep('fences', objects.fences.filter((f) => /fence_pedestrian/.test(f.type)));
+  // no fences or walls: railings and garden walls are removed from the scene
+  const fences: PropInstance[] = [];
   // metal railing: a top bar and a bottom bar, with posts at both ends of each 2 m panel
   const bars = new THREE.BoxGeometry(2, 0.04, 0.04).translate(0, -0.05, 0);
   const bar2 = new THREE.BoxGeometry(2, 0.04, 0.04).translate(0, -0.6, 0);
@@ -113,8 +114,8 @@ export function buildProps(objects: LevelObjects, blocked: Blocked = () => false
   // Garden / boundary walls: ~3.1 m segments (the measured spacing) along local x, on the ground.
   const wall = new THREE.BoxGeometry(3.1, 1.2, 0.3).translate(0, 0.6, 0);
   const coping = new THREE.BoxGeometry(3.2, 0.08, 0.42).translate(0, 1.24, 0); // stone cap
-  const stone = keep('walls', objects.fences.filter((f) => f.type === 'italy_wall_stone'));
-  const concrete = keep('walls', objects.fences.filter((f) => f.type === 'italy_wall_concrete'));
+  const stone: PropInstance[] = [];
+  const concrete: PropInstance[] = [];
   g.add(instanced(wall, new THREE.MeshStandardMaterial({ color: 0x9a8f7e, roughness: 1 }), stone, () => {}));
   g.add(instanced(coping, new THREE.MeshStandardMaterial({ color: 0xc9c2b2, roughness: 0.9 }), stone, () => {}));
   g.add(instanced(wall, new THREE.MeshStandardMaterial({ color: 0xb4b2ab, roughness: 0.95 }), concrete, () => {}));
