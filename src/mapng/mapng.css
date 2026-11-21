@@ -43,12 +43,6 @@ body {
   opacity: 0;
   pointer-events: none;
 }
-#loading h1 {
-  margin: 0;
-  font-size: 22px;
-  font-weight: 600;
-  letter-spacing: -0.01em;
-}
 #loading .bar {
   width: 220px;
   height: 4px;
@@ -63,14 +57,6 @@ body {
   background: var(--ink);
   border-radius: 2px;
   transition: width 0.25s ease;
-}
-#loading p {
-  margin: 0;
-  font-size: 13px;
-  color: var(--ink-2);
-}
-#loading.error p {
-  color: #b3261e;
 }
 
 /* in-game */
@@ -93,7 +79,8 @@ body {
   color: var(--glyph);
   font-size: 13px;
   transition: opacity 0.6s ease;
-  white-space: nowrap;
+  max-width: calc(100vw - 200px); /* stays clear of the top-right buttons */
+  text-align: center;
 }
 .mg-toast.gone {
   opacity: 0;
@@ -220,8 +207,22 @@ body {
   bottom: 18px;
   left: 16px;
   right: 16px;
+  text-align: center;
   font-size: 9px;
-  line-height: 1.4;
   color: var(--ink-2);
   opacity: 0.7;
+}
+
+/* 3 · 2 · 1 over the game screen; the car is held still until it ends */
+.mg-count {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  font-size: 96px;
+  font-weight: 200;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+  pointer-events: none;
 }

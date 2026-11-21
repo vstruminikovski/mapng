@@ -23,17 +23,16 @@ import { convertSurvey, frameOf, mergeSurvey, surveyPath, type SurveyCollection 
 const LEVEL_BASE = `${import.meta.env.BASE_URL}mapng/prviot_krug`.replace(/\/+/g, '/');
 const app = document.getElementById('app')!;
 const loading = document.getElementById('loading')!;
-const status = (s: string) => (loading.querySelector('p')!.textContent = s);
+const errorText = loading.querySelector<HTMLElement>('.error-text')!;
 const barFill = loading.querySelector<HTMLElement>('.bar i')!;
 /** Honest progress: the fraction is what has actually loaded, never a timer. */
-const progress = (f: number, text?: string) => {
+const progress = (f: number, _what?: string) => {
   barFill.style.width = `${Math.round(Math.min(1, Math.max(0, f)) * 100)}%`;
-  if (text) status(text);
 };
 
 boot().catch((e) => {
   console.error(e);
-  status(`Could not start: ${e.message ?? e}`);
+  errorText.textContent = `Could not start: ${e.message ?? e}`;
   loading.classList.add('error');
 });
 
@@ -100,7 +99,7 @@ async function boot() {
 
   // Attach the first tiles (already parsed) and wait for them.
   let firstDone = 0;
-  const firstTiles = await Promise.all(firstParsed.map((p) => p.then((r) => (progress(0.45 + (0.5 * ++firstDone) / FIRST, 'Loading buildings…'), r))));
+  const firstTiles = await Promise.all(firstParsed.map((p) => p.then((r) => (progress(0.45 + (0.45 * ++firstDone) / tiles.length, 'Loading buildings…'), r))));
   const tileMeshes: { x: number; y: number; obj: THREE.Object3D }[] = [];
   const propCells: { x: number; y: number; group: THREE.Group }[] = [];
   const attach = (r: Awaited<ReturnType<typeof parse>>) => {
@@ -181,12 +180,16 @@ async function boot() {
   const camLook = new THREE.Vector3();
   let first = true;
 
+  // The game loop stays idle until the countdown ends, so loading gets the whole device.
+  let running = false;
+  const HELD = { throttle: 0, brake: 1, steer: 0, handbrake: true, reverse: false };
   renderer.setAnimationLoop(() => {
     const dt = Math.min(0.05, clock.getDelta());
     // at most 2 physics steps per frame: on a slow device, don't fall further behind
     acc = Math.min(acc + dt, 2 / 60);
-    const input = controls.read(dt, vehicle.speed());
-    while (acc >= 1 / 60) {
+    // during the countdown the car is held still: brake on, no steering, no physics
+    const input = running ? controls.read(dt, vehicle.speed()) : HELD;
+    while (running && acc >= 1 / 60) {
       vehicle.update(input, 1 / 60);
       physics.step(1 / 60);
       acc -= 1 / 60;
@@ -213,7 +216,7 @@ async function boot() {
     // if the car falls through or flips, put it back at the start
     if (t.y < level.terrain.heightAt(wx, wy) - 3 || fwd.y > 0.85 || fwd.y < -0.85) controls.onReset?.();
 
-    traffic.update(dt, { x: wx, y: wy, z: t.y, heading, speed });
+    if (running) traffic.update(dt, { x: wx, y: wy, z: t.y, heading, speed });
     traffic.cars.forEach((c, i) => placeOnPose(aiMeshes[i], c.pose, level.terrain.heightAt));
     traffic.peds.forEach((p, i) => placeOnPose(pedMeshes[i], p.pose, level.terrain.heightAt));
     cull(wx, wy);
@@ -237,21 +240,31 @@ async function boot() {
     renderer.render(scene, camera);
   });
 
-  // The rest of the map streams in behind the start; props follow once it is all there.
-  // One tile at a time, yielding to the browser between tiles, so the frame loop keeps
-  // running while the rest of the map parses (a Collada parse can take a long time).
-  void (async () => {
-    for (const m of tiles.slice(FIRST)) {
-      attach(await parse(m));
-      await new Promise((r) => setTimeout(r, 0));
-    }
-    placeProps();
-  })();
-
-  // Ready: hide the loader and greet the player once.
+  // Everything loads behind the loader: every building tile, then the props.
+  // One tile at a time, yielding between tiles so the browser never stalls.
+  let loaded = firstDone;
+  for (const m of tiles.slice(FIRST)) {
+    attach(await parse(m));
+    progress(0.45 + (0.45 * ++loaded) / tiles.length, 'Loading buildings…');
+    await new Promise((r) => setTimeout(r, 0));
+  }
+  progress(0.92, 'Placing trees and props…');
+  await new Promise((r) => setTimeout(r, 0));
+  placeProps();
   progress(1, '');
+
+  // The game screen appears now; 3 · 2 · 1 counts down over it, then the car is live.
   loading.classList.add('fade');
   setTimeout(() => loading.remove(), 450);
+  const count = document.createElement('div');
+  count.className = 'mg-count';
+  app.appendChild(count);
+  for (const v of ['3', '2', '1']) {
+    count.textContent = v;
+    await new Promise((r) => setTimeout(r, 1000));
+  }
+  count.remove();
+  running = true;
   hud.toast('You are spawned at Skopje Zoo.');
 
   // test hook
