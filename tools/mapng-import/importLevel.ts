@@ -325,6 +325,25 @@ const objects: LevelObjects = {
   ],
 };
 write('objects.json', JSON.stringify(objects));
+
+// Names for the map: OpenStreetMap tags only (ODbL, credit shown on the loading screen).
+// Named roads become ground labels along their centre line; named places become small labels.
+{
+  const ROAD = /^(primary|secondary|tertiary|residential|unclassified|service|living_street|pedestrian|primary_link|secondary_link|tertiary_link)$/;
+  const roadNames = osm
+    .filter((f) => f.type === 'road' && f.tags?.name && ROAD.test(f.tags.highway ?? '') && f.geometry?.length > 1)
+    .map((f) => ({ name: f.tags.name as string, pts: f.geometry.map((g: any) => toWorld(g.lat, g.lng).map(round)) }));
+  const placeNames = osm
+    .filter((f) => f.tags?.name && (f.tags.amenity || f.tags.tourism || f.tags.shop || f.tags.office || f.tags.leisure || f.tags.building === 'university' || f.tags.building === 'office' || f.tags.building === 'school') && f.geometry?.length)
+    .map((f) => {
+      const g = f.geometry;
+      const cx = g.reduce((a: number, p: any) => a + p.lng, 0) / g.length, cy = g.reduce((a: number, p: any) => a + p.lat, 0) / g.length;
+      const [x, y] = toWorld(cy, cx).map(round);
+      return { name: f.tags.name as string, x, y };
+    });
+  write('names.json', JSON.stringify({ source: 'OpenStreetMap contributors (ODbL)', roads: roadNames, places: placeNames }));
+  say(`names: ${roadNames.length} named roads, ${placeNames.length} named places`);
+}
 say(
   `objects: ${objects.parkingSpots.length} parking spots, ${parkingAreas.length} OSM parking areas, ${objects.signals.instances.length} traffic lights, ${signs.length} signs, ${lamps.length} lamps, ${trees.length} trees, ${fences.length} barriers`,
 );

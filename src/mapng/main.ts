@@ -13,6 +13,7 @@ import { buildProps, buildSignals } from './render/props';
 import { buildRoads } from './render/roads';
 import { createScene, followSun } from './render/scene';
 import { buildSkirt, buildTerrainChunks } from './render/terrain';
+import { buildNames, type NamesFile } from './render/labels';
 import { loadTerrainTexture } from './render/terrain';
 import { SignalSystem } from './traffic/signals';
 import { Traffic } from './traffic/traffic';
@@ -106,6 +107,9 @@ async function boot() {
   scene.add(buildSkirt(level.terrain));
   scene.add(buildRoads(level.roads));
   scene.add(buildParkedCars(parked));
+  // street and place names (OpenStreetMap)
+  const names: NamesFile | null = await fetch(`${LEVEL_BASE}/names.json`).then((r) => (r.ok ? r.json() : null)).catch(() => null);
+  let nameGroup: THREE.Group | null = null; // built once the buildings are in, so labels clear roofs
   for (const b of parked) physics.addBox(b.x, b.y, b.z, b.heading, [2.05, 0.88, 0.75]);
   const drivable = level.roads.filter((r) => r.kind === 'carriageway' || r.kind === 'service');
   const signalMeshes = buildSignals(level.objects, darkLights, (p, d) => curbside(drivable, p, d, level.terrain.heightAt));
@@ -132,6 +136,16 @@ async function boot() {
       if ((o as THREE.Mesh).isMesh && /^bld/.test(o.name)) buildingMeshes.push(o as THREE.Mesh);
     });
     const blocked = insideOrOnRoad(buildingMeshes, drivable);
+    if (names) {
+      const rc = new THREE.Raycaster();
+      const roofAt = (x: number, y: number): number | null => {
+        rc.set(new THREE.Vector3(x, 200, -y), new THREE.Vector3(0, -1, 0));
+        const hit = rc.intersectObjects(buildingMeshes, false)[0];
+        return hit ? hit.point.y : null;
+      };
+      nameGroup = buildNames(names, level.terrain, roofAt);
+      scene.add(nameGroup);
+    }
     // props are grouped in 256 m cells so distant cells can be hidden as a whole
     const CELL = 256;
     const cellKey = (p: { pos: number[] }) => `${Math.floor((p.pos[0] + 512) / CELL)},${Math.floor((p.pos[1] + 512) / CELL)}`;
@@ -201,6 +215,7 @@ async function boot() {
     }
     for (const t of tileMeshes) t.obj.visible = near2(x, y, DRAW + 200, t.x, t.y);
     for (const c of propCells) c.group.visible = near2(x, y, DRAW + 150, c.x, c.y);
+    if (nameGroup) for (const n of nameGroup.children) n.visible = near2(x, y, 260, n.position.x, -n.position.z);
     traffic.cars.forEach((c, i) => (aiMeshes[i].visible = near2(x, y, DRAW, c.pose.x, c.pose.y)));
     traffic.peds.forEach((p, i) => (pedMeshes[i].visible = near2(x, y, DRAW, p.pose.x, p.pose.y)));
     sky.position.copy(camera.position);
