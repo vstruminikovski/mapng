@@ -74,11 +74,22 @@ async function boot() {
   const sv = merged.summary;
   if (sv.rejected.length) console.warn('Survey features rejected (not placed):', sv.rejected);
   if (sv.unmodelledSigns.length) console.info('Surveyed signs placed without a dedicated 3D sign model:', sv.unmodelledSigns);
-  const darkLights = merged.lights.filter((l) => l.controllerId === null);
+  let darkLights = merged.lights.filter((l) => l.controllerId === null);
 
   // Parking bays from map geometry (OSM lot outlines + aisles), painted and partly filled.
   const bays = layoutParking(level.objects, level.roads, level.terrain.heightAt);
   level.roads = [...level.roads, ...bayLines(bays)];
+
+  // CLEAN MAP: no traffic control in the game. Signs, signals, road markings, zebras and
+  // lane arrows are removed (survey file kept on disk, not shown). Roads, buildings,
+  // trees, lamps, parked cars and moving traffic stay.
+  const CLEAN_MAP = true;
+  if (CLEAN_MAP) {
+    level.objects.signs = [];
+    level.objects.signals.instances = [];
+    darkLights = [];
+    level.roads = level.roads.filter((r) => r.kind !== 'marking' && r.kind !== 'zebra');
+  }
   const start = level.route.start; // where the car is placed when the game starts or resets
   const parked = occupied(bays, [start.p]);
 
@@ -143,6 +154,23 @@ async function boot() {
   scene.add(car);
 
   const signals = new SignalSystem(level.objects.signals);
+  // One junction, one signal: heads within 15 m of each other follow a single master head
+  // (a surveyed light wins over a map light), so the lights at a crossing change together.
+  // Heads 5 and 7 are the two lights at the far side of the surveyed crossing (about 25 m
+  // away), linked explicitly so they change with the surveyed light.
+  for (const id of [5, 7]) signals.link(id, 200000);
+  {
+    const insts = level.objects.signals.instances;
+    const done = new Set<number>();
+    for (const a of [...insts].sort((p, q) => (p.id >= 200000 ? 0 : 1) - (q.id >= 200000 ? 0 : 1) || p.id - q.id)) {
+      if (done.has(a.id)) continue;
+      for (const b of insts)
+        if (!done.has(b.id) && Math.hypot(a.pos[0] - b.pos[0], a.pos[1] - b.pos[1]) < 15) {
+          signals.link(b.id, a.id);
+          done.add(b.id);
+        }
+    }
+  }
   const traffic = new Traffic(level.network, level.roads, signals, { center: [0, 0], radius: 800, cars: 70, pedestrians: 80 });
   const aiMeshes = traffic.cars.map((c) => {
     const m = carMesh(c.color, false);
@@ -288,7 +316,7 @@ async function boot() {
   hud.toast('You are spawned at Skopje Zoo.');
 
   // test hook
-  (window as unknown as Record<string, unknown>).__mapng = { level, vehicle, traffic, failed, scene, camera, renderer, survey: merged, bays, parked };
+  (window as unknown as Record<string, unknown>).__mapng = { level, vehicle, traffic, failed, scene, camera, renderer, survey: merged, bays, parked, signals };
 }
 
 /** Distance from (x, y) to the nearest drivable road edge (negative = on the road), with that road's direction. */

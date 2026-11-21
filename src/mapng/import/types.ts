@@ -84,6 +84,8 @@ export interface PropInstance {
   pos: Vec3;
   yaw: number;
   scale: number;
+  /** sign post height in metres (default 2.4); a sign above a traffic light is mounted higher */
+  mount?: number;
 }
 
 export interface LevelObjects {

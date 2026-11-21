@@ -125,8 +125,9 @@ export function buildProps(objects: LevelObjects, blocked: Blocked = () => false
   const signColor: Record<string, number> = { give_way: 0xd8261f, noentry: 0xc71f1a, one_way: 0x1f5fb8, priorityroad: 0xf1c41a };
   for (const s of signs) {
     const grp = new THREE.Group();
-    const stick = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 2.4, 6), new THREE.MeshStandardMaterial({ color: 0x777777 }));
-    stick.position.y = 1.2;
+    const post = s.mount ?? 2.4;
+    const stick = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, post, 6), new THREE.MeshStandardMaterial({ color: 0x777777 }));
+    stick.position.y = post / 2;
     const modelled = s.type in signColor;
     const face = osmFace(s.type);
     const plate = new THREE.Mesh(
@@ -135,7 +136,7 @@ export function buildProps(objects: LevelObjects, blocked: Blocked = () => false
     );
     plate.rotation.x = Math.PI / 2;
     if (s.type === 'priorityroad') plate.rotation.z = Math.PI / 4;
-    plate.position.y = 2.5;
+    plate.position.y = post + 0.1;
     grp.add(stick, plate);
     grp.position.set(s.pos[0], s.pos[2], -s.pos[1]);
     grp.rotation.y = s.yaw;
@@ -157,6 +158,7 @@ export function buildSignals(
   const g = new THREE.Group();
   g.name = 'signals';
   const heads = new Map<number, THREE.MeshStandardMaterial[]>();
+  const pedHeads = new Map<number, { red: THREE.MeshStandardMaterial; green: THREE.MeshStandardMaterial }>();
   const housing = new THREE.MeshStandardMaterial({ color: 0x1d1f22 });
   const list = [...objects.signals.instances.map((s) => ({ ...s, lit: true })), ...dark.map((d, k) => ({ id: -1 - k, pos: d.pos, dir: d.dir, lit: false }))];
   for (const s of list) {
@@ -173,6 +175,22 @@ export function buildSignals(
       grp.add(lens);
     });
     if (s.lit) heads.set(s.id, mats);
+    if (s.lit) {
+      // pedestrian signal on the pole side: red man / green man, opposite the vehicle signal
+      const ped = new THREE.Group();
+      const hous = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.5, 0.1), housing);
+      ped.add(hous);
+      const red = new THREE.MeshStandardMaterial({ color: 0x222222, emissive: 0xff2a1a, emissiveIntensity: 0 });
+      const green = new THREE.MeshStandardMaterial({ color: 0x222222, emissive: 0x2bd94a, emissiveIntensity: 0 });
+      const rl = new THREE.Mesh(new THREE.PlaneGeometry(0.14, 0.14), red);
+      const gl = new THREE.Mesh(new THREE.PlaneGeometry(0.14, 0.14), green);
+      rl.position.set(0, 0.12, 0.051);
+      gl.position.set(0, -0.12, 0.051);
+      ped.add(rl, gl);
+      ped.position.set(0.32, 2.3, 0);
+      grp.add(ped);
+      pedHeads.set(s.id, { red, green });
+    }
     // surveyed heads (ids ≥ 200000, and all dark ones) are already at the pole position
     const at = s.lit && s.id < 200000 ? poleAt(s.pos, s.dir) : s.pos;
     grp.position.set(at[0], at[2], -at[1]);
@@ -188,6 +206,12 @@ export function buildSignals(
         mats[0].emissiveIntensity = st === 'red' ? 2.5 : 0;
         mats[1].emissiveIntensity = st === 'yellow' ? 2.5 : 0;
         mats[2].emissiveIntensity = st === 'green' ? 2.5 : 0;
+        // pedestrians cross on red, wait on green/yellow
+        const p = pedHeads.get(id);
+        if (p) {
+          p.red.emissiveIntensity = st === 'red' ? 0 : 2.5;
+          p.green.emissiveIntensity = st === 'red' ? 2.5 : 0;
+        }
       }
     },
   };

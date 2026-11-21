@@ -19,8 +19,15 @@ export class SignalSystem {
     return this.data.instances;
   }
 
+  /** Heads that follow another head's phase (one junction, one signal). */
+  private alias = new Map<number, number>();
+  link(id: number, masterId: number) {
+    if (id !== masterId) this.alias.set(id, masterId);
+  }
+
   /** Lamp of a signal head at absolute time t (s). */
   state(instanceId: number, t: number): Lamp {
+    instanceId = this.alias.get(instanceId) ?? instanceId;
     const inst = this.data.instances.find((i) => i.id === instanceId);
     if (!inst) return 'off';
     const seq = this.data.sequences.find((s) => s.id === inst.sequenceId);

@@ -27,10 +27,11 @@ const pt = (id: string, kind: string, xy: [number, number], props: Record<string
 });
 
 describe('manual survey layer', () => {
-  it('the shipped survey file is valid and empty (no invented features)', () => {
+  it('the shipped survey file parses and every feature in it is accepted', () => {
     const file = JSON.parse(readFileSync(join(__dirname, '..', 'public', 'survey', 'prviot_krug.geojson'), 'utf8'));
     expect(file.type).toBe('FeatureCollection');
-    expect(file.features).toEqual([]);
+    const r = convertSurvey(file, frame, h);
+    expect(r.rejected).toEqual([]);
   });
 
   it('places points through the MapNG transform exactly', () => {

@@ -206,7 +206,7 @@ export function mergeSurvey(level: { objects: LevelObjects; roads: ImportedRoad[
   const signs = mergeSigns(layer.signs, level.objects.signs);
   const osmLights = level.objects.signals.instances;
   const lightsWithProgram = layer.lights.map((l) => {
-    let best: SignalInstance | null = null, bd = 8;
+    let best: SignalInstance | null = null, bd = 12; // survey position is accurate to a few metres; a 12 m match is the same junction
     for (const o of osmLights) {
       const d = Math.hypot(o.pos[0] - l.pos[0], o.pos[1] - l.pos[1]);
       if (d <= bd) {
@@ -224,7 +224,12 @@ export function mergeSurvey(level: { objects: LevelObjects; roads: ImportedRoad[
   const instances: SignalInstance[] = lights.items
     .filter((l) => l.controllerId !== null && l.sequenceId !== null)
     .map((l) => ({ id: l.id, pos: l.pos, dir: l.dir, controllerId: l.controllerId!, sequenceId: l.sequenceId! }));
-  const asProps: PropInstance[] = signs.items.map(({ type, pos, yaw, scale }) => ({ type, pos, yaw, scale }));
+  // a sign surveyed at the same spot as a traffic light is mounted above that light
+  const lightPos = layer.lights.map((l) => l.pos);
+  const asProps: PropInstance[] = signs.items.map((s) => {
+    const above = lightPos.some((p) => Math.hypot(p[0] - s.pos[0], p[1] - s.pos[1]) < 1.5);
+    return { type: s.type, pos: s.pos, yaw: s.yaw, scale: s.scale, ...(above ? { mount: 4.6 } : {}) };
+  });
   return {
     objects: { ...level.objects, signs: asProps, signals: { ...level.objects.signals, instances } },
     roads: [...level.roads.filter((r) => !markingIds.has(r.id)), ...markings.items],
