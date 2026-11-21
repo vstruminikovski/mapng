@@ -59,27 +59,13 @@ export function buildNames(names: NamesFile, terrain: Terrain, roofAt: (x: numbe
   const g = new THREE.Group();
   g.name = 'names';
 
+  // Road names: every named road gets labels. Along long straight pieces they repeat every
+  // ~90 m; a road too short for a full-size label gets one smaller label that fits its
+  // longest piece. Labels are always whole and read left to right.
+  const SPACING = 90, FIRST = 60, MIN_GAP = 40, FIT = 1.3, MIN_SCALE = 0.45;
   const placed: { name: string; x: number; y: number }[] = [];
-  for (const r of names.roads) {
-    const { tex, aspect } = textCanvas(r.name, ROAD_FONT, '#2a2a2c', 'rgba(255,255,255,0.75)');
-    const h = 1.2;
-    const worldLen = h * aspect; // label length in metres
-    // straight pieces of this road, longest first, that can hold the whole label
-    const pieces: { len: number; a: number[]; b: number[] }[] = [];
-    for (let i = 0; i < r.pts.length - 1; i++) {
-      const a = r.pts[i], b = r.pts[i + 1];
-      const len = Math.hypot(b[0] - a[0], b[1] - a[1]);
-      if (len >= worldLen * 1.3) pieces.push({ len, a, b });
-    }
-    if (!pieces.length) continue; // no room for the whole name: show nothing rather than a cut label
-    pieces.sort((p, q) => q.len - p.len);
-    const p = pieces[0];
-    const mx = (p.a[0] + p.b[0]) / 2, my = (p.a[1] + p.b[1]) / 2;
-    if (placed.some((q) => q.name === r.name && Math.hypot(q.x - mx, q.y - my) < 120)) continue;
-    placed.push({ name: r.name, x: mx, y: my });
-    let theta = Math.atan2(p.b[1] - p.a[1], p.b[0] - p.a[0]);
-    // keep the text upright and readable from the car: never upside down
-    if (Math.cos(theta) < 0) theta += Math.PI;
+  const addRoadLabel = (name: string, tex: THREE.Texture, aspect: number, mx: number, my: number, theta: number, scale: number) => {
+    const h = 1.2 * scale;
     const plane = new THREE.Mesh(
       new THREE.PlaneGeometry(h * aspect, h),
       new THREE.MeshBasicMaterial({ map: tex, transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -8 }),
@@ -88,7 +74,40 @@ export function buildNames(names: NamesFile, terrain: Terrain, roofAt: (x: numbe
     plane.rotation.z = theta;
     plane.position.set(mx, terrain.heightAt(mx, my) + 0.3, -my); // clear of the road surface
     plane.renderOrder = 5;
+    plane.name = name;
     g.add(plane);
+    placed.push({ name, x: mx, y: my });
+  };
+  for (const r of names.roads) {
+    const { tex, aspect } = textCanvas(r.name, ROAD_FONT, '#2a2a2c', 'rgba(255,255,255,0.75)');
+    const fullLen = 1.2 * aspect; // full-size label length, m
+    const orient = (a: number[], b: number[]) => {
+      let t = Math.atan2(b[1] - a[1], b[0] - a[0]);
+      if (Math.cos(t) < 0) t += Math.PI; // never upside down
+      return t;
+    };
+    let placedHere = 0;
+    let run = 0, next = FIRST;
+    let longest = { L: 0, a: r.pts[0], b: r.pts[1] };
+    for (let i = 0; i < r.pts.length - 1; i++) {
+      const a = r.pts[i], b = r.pts[i + 1];
+      const L = Math.hypot(b[0] - a[0], b[1] - a[1]);
+      if (L > longest.L) longest = { L, a, b };
+      while (L > 0 && run + L >= next) {
+        const t = (next - run) / L;
+        const mx = a[0] + (b[0] - a[0]) * t, my = a[1] + (b[1] - a[1]) * t;
+        next += SPACING;
+        if (L < fullLen * FIT || placed.some((q) => q.name === r.name && Math.hypot(q.x - mx, q.y - my) < MIN_GAP)) continue;
+        addRoadLabel(r.name, tex, aspect, mx, my, orient(a, b), 1);
+        placedHere++;
+      }
+      run += L;
+    }
+    // no full-size spot on this road: one label, shrunk to fit its longest piece
+    if (placedHere === 0 && longest.L > 0) {
+      const scale = Math.max(MIN_SCALE, Math.min(1, longest.L / (fullLen * FIT)));
+      addRoadLabel(r.name, tex, aspect, (longest.a[0] + longest.b[0]) / 2, (longest.a[1] + longest.b[1]) / 2, orient(longest.a, longest.b), scale);
+    }
   }
 
   // place names: sprite above the roof of the building (or above the ground if none)

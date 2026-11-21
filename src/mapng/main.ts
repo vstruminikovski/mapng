@@ -109,6 +109,9 @@ async function boot() {
   scene.add(buildParkedCars(parked));
   // street and place names (OpenStreetMap)
   const names: NamesFile | null = await fetch(`${LEVEL_BASE}/names.json`).then((r) => (r.ok ? r.json() : null)).catch(() => null);
+  // road labels come from the merged streets (same-name ways joined into one street)
+  const streets: { streets: { name: string; ways: number[][][] }[] } | null = await fetch(`${LEVEL_BASE}/streets.json`).then((r) => (r.ok ? r.json() : null)).catch(() => null);
+  if (names && streets) names.roads = streets.streets.flatMap((st) => st.ways.map((w) => ({ name: st.name, pts: w })));
   let nameGroup: THREE.Group | null = null; // built once the buildings are in, so labels clear roofs
   for (const b of parked) physics.addBox(b.x, b.y, b.z, b.heading, [2.05, 0.88, 0.75]);
   const drivable = level.roads.filter((r) => r.kind === 'carriageway' || r.kind === 'service');

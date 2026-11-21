@@ -342,6 +342,74 @@ write('objects.json', JSON.stringify(objects));
       return { name: f.tags.name as string, x, y };
     });
   write('names.json', JSON.stringify({ source: 'OpenStreetMap contributors (ODbL)', roads: roadNames, places: placeNames }));
+
+  // Streets: OpenStreetMap ways with the same name that meet at a shared point are one street.
+  // Each street keeps its ways, its ends, and the points where other roads (named or not) meet it.
+  // An end on the map's edge is a cut-off, not a real end.
+  {
+    const ROAD2 = /^(primary|secondary|tertiary|residential|unclassified|service|living_street|pedestrian|primary_link|secondary_link|tertiary_link)$/;
+    const roadsAll = osm.filter((f) => f.type === 'road' && ROAD2.test(f.tags?.highway ?? '') && f.geometry?.length > 1);
+    const named = roadsAll.filter((f) => f.tags?.name);
+    const pk = (g: any) => `${g.lat.toFixed(7)},${g.lng.toFixed(7)}`;
+    const ends = (w: any) => [w.geometry[0], w.geometry[w.geometry.length - 1]];
+    // the map is 1024 m square centred on 0: a point at the very edge is a cut-off
+    const onEdge = (g: any) => {
+      const [x, y] = toWorld(g.lat, g.lng);
+      return Math.abs(x) > 511 || Math.abs(y) > 511;
+    };
+    // every road touching each point, named or not
+    const touching = new Map<string, any[]>();
+    for (const w of roadsAll)
+      for (const g of ends(w)) {
+        const k = pk(g);
+        if (!touching.has(k)) touching.set(k, []);
+        touching.get(k)!.push(w);
+      }
+    // union-find over named ways: same name + shared point
+    const idx = new Map<any, number>(named.map((w, i) => [w, i]));
+    const parent = named.map((_, i) => i);
+    const find = (i: number): number => (parent[i] === i ? i : (parent[i] = find(parent[i])));
+    for (const list of touching.values())
+      for (const w1 of list)
+        for (const w2 of list)
+          if (idx.has(w1) && idx.has(w2) && w1 !== w2 && w1.tags.name === w2.tags.name) parent[find(idx.get(w1)!)] = find(idx.get(w2)!);
+    const groups = new Map<number, number[]>();
+    named.forEach((_, i) => {
+      const r = find(i);
+      if (!groups.has(r)) groups.set(r, []);
+      groups.get(r)!.push(i);
+    });
+    const streets = [...groups.values()].map((idxs) => {
+      const name = named[idxs[0]].tags.name as string;
+      const members = new Set(idxs.map((i) => named[i]));
+      const endPts = new Map<string, { x: number; y: number; cut: boolean; crosses: Set<string> }>();
+      for (const i of idxs)
+        for (const g of ends(named[i])) {
+          const k = pk(g);
+          if (!endPts.has(k)) {
+            const [x, y] = toWorld(g.lat, g.lng).map(round);
+            endPts.set(k, { x, y, cut: false, crosses: new Set() });
+          }
+          const e = endPts.get(k)!;
+          if (onEdge(g)) e.cut = true;
+          for (const w of touching.get(k) ?? []) if (!members.has(w)) e.crosses.add(w.tags.name ? (w.tags.name as string) : '(unnamed road)');
+        }
+      const endList = [...endPts.values()].map((e) => ({
+        x: e.x,
+        y: e.y,
+        kind: e.cut ? 'map-edge' : e.crosses.size ? 'junction' : 'end',
+        crosses: [...e.crosses].sort(),
+      }));
+      return {
+        name,
+        ways: idxs.map((i) => named[i].geometry.map((g: any) => toWorld(g.lat, g.lng).map(round))),
+        ends: endList,
+      };
+    });
+    streets.sort((a, b) => a.name.localeCompare(b.name));
+    write('streets.json', JSON.stringify({ source: 'OpenStreetMap contributors (ODbL)', streets }));
+    say(`streets: ${streets.length} streets from ${named.length} named ways`);
+  }
   say(`names: ${roadNames.length} named roads, ${placeNames.length} named places`);
 }
 say(
