@@ -15,7 +15,9 @@ export interface SceneKit {
 export function createScene(canvasHost: HTMLElement): SceneKit {
   const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-  renderer.shadowMap.enabled = true;
+  // Shadows are the costliest pass on phone GPUs: off on touch screens, on elsewhere.
+  const touch = matchMedia('(pointer: coarse)').matches;
+  renderer.shadowMap.enabled = !touch;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -47,7 +49,7 @@ export function createScene(canvasHost: HTMLElement): SceneKit {
   scene.add(new THREE.HemisphereLight(0xdfeaff, 0x5b5040, 1.1));
   const sun = new THREE.DirectionalLight(0xffe2b8, 2.4);
   sun.position.set(-120, 160, 80);
-  sun.castShadow = true;
+  sun.castShadow = !touch;
   sun.shadow.mapSize.set(2048, 2048);
   const sc = sun.shadow.camera;
   sc.left = -70;

@@ -183,7 +183,8 @@ async function boot() {
 
   renderer.setAnimationLoop(() => {
     const dt = Math.min(0.05, clock.getDelta());
-    acc += dt;
+    // at most 2 physics steps per frame: on a slow device, don't fall further behind
+    acc = Math.min(acc + dt, 2 / 60);
     const input = controls.read(dt, vehicle.speed());
     while (acc >= 1 / 60) {
       vehicle.update(input, 1 / 60);
@@ -237,7 +238,15 @@ async function boot() {
   });
 
   // The rest of the map streams in behind the start; props follow once it is all there.
-  void Promise.all(tiles.slice(FIRST).map((m) => parse(m).then(attach))).then(() => placeProps());
+  // One tile at a time, yielding to the browser between tiles, so the frame loop keeps
+  // running while the rest of the map parses (a Collada parse can take a long time).
+  void (async () => {
+    for (const m of tiles.slice(FIRST)) {
+      attach(await parse(m));
+      await new Promise((r) => setTimeout(r, 0));
+    }
+    placeProps();
+  })();
 
   // Ready: hide the loader and greet the player once.
   progress(1, '');
