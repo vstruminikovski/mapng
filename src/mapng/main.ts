@@ -137,7 +137,9 @@ async function boot() {
   // heavy steps run a piece at a time with a pause between, so the loader keeps moving on slow phones
   const pause = () => new Promise<void>((r) => setTimeout(r, 0));
   progress(0.4);
-  const tex = await loadTerrainTexture(`${LEVEL_BASE}/${level.index.terrain.baseTexture}`);
+  // phones get the half-size colour image (about a fifth of the bytes); desktops get the full one
+  const small = window.matchMedia('(max-width: 900px)').matches;
+  const tex = await loadTerrainTexture(`${LEVEL_BASE}/${small ? 'terrain_base_1024.jpg' : level.index.terrain.baseTexture}`);
   await pause();
   const terrain = await buildTerrainChunksAsync(level.terrain, tex, (d, total) => progress(0.4 + (0.05 * d) / total));
   scene.add(terrain);
