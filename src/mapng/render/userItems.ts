@@ -118,3 +118,41 @@ export function buildUserItems(items: UserItem[], heightAt: (x: number, y: numbe
     ],
   };
 }
+
+/** The height of the surface you see: roads and parking are drawn above the terrain formula, so items drop onto the top of them. */
+export function surfaceOnScene(scene: THREE.Object3D, heightAt: (x: number, y: number) => number) {
+  const roadMeshes: THREE.Object3D[] = [];
+  scene.traverse((o) => {
+    if (!(o as THREE.Mesh).isMesh) return;
+    let p: THREE.Object3D | null = o.parent;
+    while (p && p.name !== 'roads') p = p.parent;
+    if (p) roadMeshes.push(o);
+  });
+  return (x: number, y: number) => {
+    const h = heightAt(x, y);
+    const rc = new THREE.Raycaster(new THREE.Vector3(x, h + 50, -y), new THREE.Vector3(0, -1, 0));
+    const hit = rc.intersectObjects(roadMeshes, false)[0];
+    return hit && hit.point.y > h ? hit.point.y : h;
+  };
+}
+
+/**
+ * Draws the builder's items in any scene (the builder or the game), exactly the same way.
+ * update(t) runs the traffic lights' timers; t is seconds.
+ */
+export function drawUserItems(
+  scene: THREE.Scene,
+  items: UserItem[],
+  heightAt: (x: number, y: number) => number,
+  poleAt: (pos: number[], dir: number[]) => number[],
+) {
+  const b = buildUserItems(items, surfaceOnScene(scene, heightAt), poleAt);
+  const groups = [b.signs, b.lights, b.lights2, b.props, b.poles, b.marks];
+  for (const g of groups) scene.add(g);
+  return {
+    groups,
+    update(t: number) {
+      for (const u of b.lightUpdaters) u.update((id) => { const r = u.recs[-1 - id]; return r && r.cat === 'light' ? lampOf(r, t) : 'off'; });
+    },
+  };
+}

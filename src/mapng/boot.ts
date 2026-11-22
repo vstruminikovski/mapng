@@ -21,6 +21,7 @@ import type { PropInstance } from './import/types';
 import { bayLines, layoutParking, occupied } from './import/parkingLayout';
 import { buildParkedCars } from './render/parking';
 import { convertSurvey, frameOf, mergeSurvey, surveyPath, type SurveyCollection } from './import/manualSurvey';
+import { drawUserItems, type UserItem } from './render/userItems';
 
 const LEVEL_BASE = `${import.meta.env.BASE_URL}mapng/prviot_krug`.replace(/\/+/g, '/');
 const app = document.getElementById('app')!;
@@ -104,13 +105,14 @@ async function boot(builder?: BuilderHooks) {
   const fc: SurveyCollection | null = await fetch(surveyUrl)
     .then((r) => (r.ok ? r.json() : null))
     .catch(() => null);
-  // Mod (optional): public/mods/active.json, exported by the builder. Its survey features and
-  // trees/lamps are added on top of the survey file; a file of another format is ignored.
-  const modUrl = `${import.meta.env.BASE_URL}mods/active.json`.replace(/\/+/g, '/');
-  const mod: ModFile | null = builder ? null : await fetch(modUrl)
+  // Mod (optional): the builder's export, copied to survey/active.json (or the older mods/active.json).
+  // Version 1 adds survey features, trees and lamps; version 2 is every item the builder placed, drawn as in the builder.
+  const modFetch = (path: string) => fetch(`${import.meta.env.BASE_URL}${path}`.replace(/\/+/g, '/'))
     .then((r) => (r.ok ? r.json() : null))
-    .then((m) => (m && m.format === 'mapng-mod' && m.version === 1 ? (m as ModFile) : null))
     .catch(() => null);
+  const modRaw = builder ? null : (await modFetch('survey/active.json')) ?? (await modFetch('mods/active.json'));
+  const mod: ModFile | null = modRaw && modRaw.format === 'mapng-mod' && modRaw.version === 1 ? (modRaw as ModFile) : null;
+  const userItems: UserItem[] | null = modRaw && modRaw.format === 'mapng-mod' && modRaw.version === 2 && Array.isArray(modRaw.items) && !builder ? (modRaw.items as UserItem[]) : null;
   if (mod) {
     level.objects.trees.push(...mod.objects.trees);
     level.objects.lamps.push(...mod.objects.lamps);
@@ -283,6 +285,8 @@ async function boot(builder?: BuilderHooks) {
   // The game loop stays idle until the countdown ends, so loading gets the whole device.
   let running = false;
   const HELD = { throttle: 0, brake: 1, steer: 0, handbrake: true, reverse: false };
+  // the builder's items, once the map is in (see below)
+  let userDraw: ReturnType<typeof drawUserItems> | null = null;
   renderer.setAnimationLoop(() => {
     const dt = Math.min(0.05, clock.getDelta());
     // at most 2 physics steps per frame: on a slow device, don't fall further behind
@@ -335,6 +339,7 @@ async function boot(builder?: BuilderHooks) {
     traffic.peds.forEach((p, i) => placeOnPose(pedMeshes[i], p.pose, level.terrain.heightAt));
     if (builder) cull(...builder.focus(camera)); else cull(wx, wy);
     signalMeshes.update((id) => signals.state(id, traffic.clock));
+    userDraw?.update(performance.now() / 1000);
     hud.update({ speed, reverse: input.reverse });
 
     // camera
@@ -378,6 +383,7 @@ async function boot(builder?: BuilderHooks) {
     if (!builder) progress(1);
   };
   if (!builder) await streamRest();
+  if (userItems) userDraw = drawUserItems(scene, userItems, level.terrain.heightAt, (p, d) => curbside(drivable, p, d, level.terrain.heightAt));
 
   // The game screen appears now; 3 · 2 · 1 counts down over it, then the car is live.
   loading.classList.add('fade');
