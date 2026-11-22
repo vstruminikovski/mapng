@@ -12,7 +12,7 @@ import { loadModel } from './render/models';
 import { buildProps, buildSignals } from './render/props';
 import { buildRoads } from './render/roads';
 import { createScene, followSun } from './render/scene';
-import { buildSkirt, buildTerrainChunks } from './render/terrain';
+import { buildSkirt, buildTerrainChunksAsync } from './render/terrain';
 import { buildNames, type NamesFile } from './render/labels';
 import { loadTerrainTexture } from './render/terrain';
 import { SignalSystem } from './traffic/signals';
@@ -134,11 +134,18 @@ async function boot() {
   const kit = createScene(app);
   const { scene, camera, renderer, sun, sky } = kit;
 
+  // heavy steps run a piece at a time with a pause between, so the loader keeps moving on slow phones
+  const pause = () => new Promise<void>((r) => setTimeout(r, 0));
   progress(0.4);
-  const terrain = buildTerrainChunks(level.terrain, await loadTerrainTexture(`${LEVEL_BASE}/${level.index.terrain.baseTexture}`));
+  const tex = await loadTerrainTexture(`${LEVEL_BASE}/${level.index.terrain.baseTexture}`);
+  await pause();
+  const terrain = await buildTerrainChunksAsync(level.terrain, tex, (d, total) => progress(0.4 + (0.05 * d) / total));
   scene.add(terrain);
+  await pause();
   scene.add(buildSkirt(level.terrain));
+  await pause();
   scene.add(buildRoads(level.roads));
+  await pause();
   scene.add(buildParkedCars(parked));
   // street and place names (OpenStreetMap)
   const names: NamesFile | null = await fetch(`${LEVEL_BASE}/names.json`).then((r) => (r.ok ? r.json() : null)).catch(() => null);

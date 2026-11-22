@@ -141,6 +141,39 @@ export function buildTerrainChunks(t: Terrain, tex: THREE.Texture, chunk = 128, 
   return g;
 }
 
+/** Same terrain as buildTerrainChunks, built a few chunks at a time with a pause between, so the page never freezes (phones). */
+export async function buildTerrainChunksAsync(
+  t: Terrain,
+  tex: THREE.Texture,
+  onChunk?: (done: number, total: number) => void,
+  chunk = 128,
+  near = 2,
+  far = 8,
+): Promise<THREE.Group> {
+  const g = new THREE.Group();
+  g.name = 'terrain';
+  const chunks: { cx: number; cy: number; near: THREE.Mesh; far: THREE.Mesh }[] = [];
+  const N = t.size;
+  const per = Math.ceil((N - 1) / chunk);
+  const total = per * per;
+  let done = 0;
+  for (let j0 = 0; j0 < N - 1; j0 += chunk)
+    for (let i0 = 0; i0 < N - 1; i0 += chunk) {
+      const n = Math.min(chunk, N - 1 - i0, N - 1 - j0);
+      const cx = t.origin[0] + (i0 + n / 2) * t.squareSize;
+      const cy = t.origin[1] + (j0 + n / 2) * t.squareSize;
+      const a = patch(t, i0, j0, n, near, tex), b = patch(t, i0, j0, n, far, tex);
+      a.name = b.name = 'terrain-chunk';
+      g.add(a, b);
+      chunks.push({ cx, cy, near: a, far: b });
+      done++;
+      onChunk?.(done, total);
+      if (done % 2 === 0) await new Promise((r) => setTimeout(r, 0));
+    }
+  g.userData.chunks = chunks;
+  return g;
+}
+
 /** The map's colour image as a texture (no added detail). */
 export function loadTerrainTexture(url: string): Promise<THREE.Texture> {
   return new Promise((res, rej) => {
