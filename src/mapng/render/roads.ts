@@ -18,7 +18,7 @@ function styleFor(r: ImportedRoad): Style | null {
   const m = r.material;
   if (m === 'road_invisible' || r.kind === 'gutter') return null;
   if (r.kind === 'zebra') return { color: 0xf2f2ee, lift: 0.07, order: 4, stripes: true };
-  if (r.kind === 'marking') return { color: 0xf4f4ef, lift: 0.06, order: 3, dashed: /discontinue/.test(m) };
+  if (r.kind === 'marking') return { color: /yellow/.test(m) ? 0xf2c12e : 0xf4f4ef, lift: 0.06, order: 3, dashed: /discontinue/.test(m) };
   if (/pavers/.test(m)) return { color: 0xa39582, lift: 0.025, order: 1 };
   if (/dirt/.test(m)) return { color: 0x8a7458, lift: 0.025, order: 1 };
   if (/concrete/.test(m)) return { color: 0x9d9c97, lift: 0.03, order: 1 };
@@ -103,7 +103,7 @@ export function buildRoads(roads: ImportedRoad[]): THREE.Group {
         .catch(() => {});
     }
     if (b.style.dashed || b.style.stripes) {
-      mat.alphaMap = b.style.dashed ? dashTexture() : stripeTexture();
+      mat.alphaMap = b.style.dashed ? dashTexture() : zebraTexture();
       mat.transparent = true;
       mat.alphaTest = 0.5;
       mat.depthWrite = false;
@@ -131,18 +131,19 @@ function dashTexture() {
   t.repeat.set(1, 1 / 6);
   return t;
 }
-function stripeTexture() {
-  // zebra bars across the crossing direction (0.5 m bar, 0.5 m gap)
+function zebraTexture() {
+  // zebra bars run ACROSS the drawn line (perpendicular to it), stacked along it:
+  // uv.y is metres along the line, so one 1 m tile = 0.5 m bar + 0.5 m gap
   const c = document.createElement('canvas');
-  c.width = 64;
-  c.height = 4;
+  c.width = 4;
+  c.height = 64;
   const x = c.getContext('2d')!;
   x.fillStyle = '#000';
-  x.fillRect(0, 0, 64, 4);
+  x.fillRect(0, 0, 4, 64);
   x.fillStyle = '#fff';
-  x.fillRect(0, 0, 32, 4);
+  x.fillRect(0, 0, 4, 32);
   const t = new THREE.CanvasTexture(c);
   t.wrapS = t.wrapT = THREE.RepeatWrapping;
-  t.repeat.set(4, 1);
+  t.repeat.set(1, 1);
   return t;
 }

@@ -9,8 +9,8 @@ import { yawFromRotation } from '../import/cityGis';
 import type { ImportedRoad, LevelObjects, PropInstance } from '../import/types';
 import type { Lamp } from '../traffic/signals';
 
-export const POLE_W = 0.24; // the pole: 3x the sign post thickness
-export const POLE_L = 0.8;  // the pole: a third of the sign post length
+export const POLE_W = 0.2; // the pole block: a true 0.2 m cube
+export const POLE_L = 0.2;  // the pole block: 0.2 m high too, blocks stack on a 0.2 m grid
 
 /** One item placed in the builder. Exported as-is, so the game gets exactly what the builder had. */
 export type UserItem =
@@ -18,17 +18,18 @@ export type UserItem =
   | { id: number; cat: 'light'; mode?: string; x: number; y: number; z: number; facing: number; green: number; yellow: number; red: number; offset: number; verified: boolean; note: string }
   | { id: number; cat: 'mark'; key: string; pts: [number, number][]; strokes?: [number, number][][]; width: number; kind: 'marking' | 'zebra'; material: string; verified: boolean; note: string }
   | { id: number; cat: 'prop'; kind: 'tree' | 'lamp'; type: string; x: number; y: number; z: number; facing: number; verified: boolean; note: string }
-  | { id: number; cat: 'pole'; orient: 'vert' | 'horiz'; yaw: number; x: number; y: number; z: number; facing: number; verified: boolean; note: string };
+  | { id: number; cat: 'pole'; orient: 'vert' | 'horiz'; yaw: number; x: number; y: number; z: number; facing: number; len?: number; thick?: number; verified: boolean; note: string };
 
 export function strokesOf(r: { pts: [number, number][]; strokes?: [number, number][][] }): [number, number][][] { return r.strokes ?? [r.pts]; }
 export function markPoints(r: { pts: [number, number][]; strokes?: [number, number][][] }): [number, number][] { return strokesOf(r).flat(); }
 
 /** Box and turn of a pole. Horizontal: the long side runs along the pole's yaw. Three.js y is up. */
-export function poleBox(orient: 'vert' | 'horiz') {
-  return orient === 'vert' ? new THREE.BoxGeometry(POLE_W, POLE_L, POLE_W) : new THREE.BoxGeometry(POLE_L, POLE_W, POLE_W);
+export function poleBox(orient: 'vert' | 'horiz', len = POLE_L, thick = POLE_W) {
+  return orient === 'vert' ? new THREE.BoxGeometry(thick, len, thick) : new THREE.BoxGeometry(len, thick, thick);
 }
 export function poleRotY(r: { orient: 'vert' | 'horiz'; yaw: number }) {
-  return r.orient === 'vert' ? 0 : Math.PI / 2 - (r.yaw * Math.PI) / 180;
+  // the block turns about its vertical axis with its yaw (Q / E); three.js turns the other way round
+  return r.orient === 'vert' ? -(r.yaw * Math.PI) / 180 : Math.PI / 2 - (r.yaw * Math.PI) / 180;
 }
 
 /** Lamp of a placed light at time t (seconds): its own green, yellow and red times, with an offset. */
@@ -74,7 +75,7 @@ export function buildUserItems(items: UserItem[], heightAt: (x: number, y: numbe
   const lightsB = buildSignals(emptyObjects(), withPole.map((o) => ({ pos: o.pos, dir: o.dir })), poleAt, { pole: true });
 
   // trees and lamps: the game's prop builder
-  const toProp = (r: Extract<UserItem, { cat: 'prop' }>): PropInstance => ({ type: r.type, pos: [r.x, r.y, r.z], yaw: 0, scale: 1 });
+  const toProp = (r: Extract<UserItem, { cat: 'prop' }>): PropInstance => ({ type: r.type, pos: [r.x, r.y, r.z], yaw: -((r.facing ?? 0) * Math.PI) / 180, scale: 1 });
   const propRecs = items.filter((r): r is Extract<UserItem, { cat: 'prop' }> => r.cat === 'prop');
   const props = buildProps({ ...emptyObjects(), trees: propRecs.filter((r) => r.kind === 'tree').map(toProp), lamps: propRecs.filter((r) => r.kind === 'lamp').map(toProp) });
 
@@ -84,7 +85,7 @@ export function buildUserItems(items: UserItem[], heightAt: (x: number, y: numbe
   for (const r of items) {
     if (r.cat !== 'pole') continue;
     const o = r.orient ?? 'vert'; // items saved before the orientation existed stand up
-    const m = new THREE.Mesh(poleBox(o), poleMat);
+    const m = new THREE.Mesh(poleBox(o, r.len ?? POLE_L, r.thick ?? POLE_W), poleMat);
     m.position.set(r.x, r.z, -r.y);
     m.rotation.y = poleRotY({ orient: o, yaw: r.yaw ?? 0 });
     m.userData.id = r.id;
@@ -97,6 +98,12 @@ export function buildUserItems(items: UserItem[], heightAt: (x: number, y: numbe
     points: st.map(([x, y]) => [x, y, heightAt(x, y) + 0.08, r.width] as [number, number, number, number]),
   })) : []));
   const marks = buildRoads(roads);
+  marks.name = 'user_roads'; // not the level's roads: the builder drops items onto those
+  // your lines lie on the ground: a stronger depth offset keeps them from flickering or vanishing where the depth buffer is coarse
+  marks.traverse((o) => {
+    const m = (o as THREE.Mesh).material as THREE.MeshStandardMaterial | undefined;
+    if (m && m.polygonOffset) { m.polygonOffsetFactor = -20; m.polygonOffsetUnits = -40; }
+  });
 
   return {
     signs: signGroup,
