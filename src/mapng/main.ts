@@ -12,7 +12,7 @@ import { loadModel } from './render/models';
 import { buildProps, buildSignals } from './render/props';
 import { buildRoads } from './render/roads';
 import { createScene, followSun } from './render/scene';
-import { buildSkirt, buildTerrainChunksAsync } from './render/terrain';
+import { buildSkirt, buildTerrainChunks } from './render/terrain';
 import { buildNames, type NamesFile } from './render/labels';
 import { loadTerrainTexture } from './render/terrain';
 import { SignalSystem } from './traffic/signals';
@@ -60,9 +60,7 @@ async function boot() {
   const tiles = level.index.models
     .filter((m) => m.role === 'buildings' || m.role === 'sidewalks')
     .sort((a, b) => Math.hypot(a.position[0] - spawn[0], a.position[1] - spawn[1]) - Math.hypot(b.position[0] - spawn[0], b.position[1] - spawn[1]));
-  // the start waits only for the buildings near the spawn point (within 300 m); the rest streams in behind it
-  const nearSpawn = tiles.filter((m) => Math.hypot(m.position[0] - spawn[0], m.position[1] - spawn[1]) < 300).length;
-  const FIRST = Math.max(4, nearSpawn);
+  const FIRST = 6;
   const failed: string[] = [];
   const parse = (m: (typeof tiles)[number]) =>
     loadModel(LEVEL_BASE, m, level.terrain.heightAt)
@@ -134,20 +132,11 @@ async function boot() {
   const kit = createScene(app);
   const { scene, camera, renderer, sun, sky } = kit;
 
-  // heavy steps run a piece at a time with a pause between, so the loader keeps moving on slow phones
-  const pause = () => new Promise<void>((r) => setTimeout(r, 0));
   progress(0.4);
-  // phones get the half-size colour image (about a fifth of the bytes); desktops get the full one
-  const small = window.matchMedia('(max-width: 900px)').matches;
-  const tex = await loadTerrainTexture(`${LEVEL_BASE}/${small ? 'terrain_base_1024.jpg' : level.index.terrain.baseTexture}`);
-  await pause();
-  const terrain = await buildTerrainChunksAsync(level.terrain, tex, (d, total) => progress(0.4 + (0.05 * d) / total));
+  const terrain = buildTerrainChunks(level.terrain, await loadTerrainTexture(`${LEVEL_BASE}/${level.index.terrain.baseTexture}`));
   scene.add(terrain);
-  await pause();
   scene.add(buildSkirt(level.terrain));
-  await pause();
   scene.add(buildRoads(level.roads));
-  await pause();
   scene.add(buildParkedCars(parked));
   // street and place names (OpenStreetMap)
   const names: NamesFile | null = await fetch(`${LEVEL_BASE}/names.json`).then((r) => (r.ok ? r.json() : null)).catch(() => null);
@@ -353,20 +342,20 @@ async function boot() {
     renderer.render(scene, camera);
   });
 
-  // The rest of the map: every other building tile, then the props and the flag. One tile at a time,
-  // yielding between tiles so the car never stalls. It streams in while you start driving.
-  const streamRest = async () => {
-    for (const m of tiles.slice(FIRST)) {
-      attach(await parse(m));
-      await new Promise((r) => setTimeout(r, 0));
-    }
-    placeProps();
-    // the real flag model from the map export, at its exported position (no collision)
-    const flagTile = level.index.models.find((m) => m.role === 'flag');
-    if (flagTile) await loadModel(LEVEL_BASE, flagTile, level.terrain.heightAt).then((lm) => scene.add(lm.object)).catch((e) => console.warn('flag model failed', e));
-  };
-  progress(0.95);
+  // Everything loads behind the loader: every building tile, then the props.
+  // One tile at a time, yielding between tiles so the browser never stalls.
+  let loaded = firstDone;
+  for (const m of tiles.slice(FIRST)) {
+    attach(await parse(m));
+    progress(0.45 + (0.45 * ++loaded) / tiles.length);
+    await new Promise((r) => setTimeout(r, 0));
+  }
+  progress(0.92);
   await new Promise((r) => setTimeout(r, 0));
+  placeProps();
+  // the real flag model from the map export, at its exported position (no collision)
+  const flagTile = level.index.models.find((m) => m.role === 'flag');
+  if (flagTile) await loadModel(LEVEL_BASE, flagTile, level.terrain.heightAt).then((lm) => scene.add(lm.object)).catch((e) => console.warn('flag model failed', e));
   progress(1);
 
   // The game screen appears now; 3 · 2 · 1 counts down over it, then the car is live.
@@ -382,7 +371,6 @@ async function boot() {
   count.remove();
   running = true;
   hud.toast('You are spawned at Skopje Zoo.');
-  void streamRest(); // the rest of the map loads while you drive
 
   // test hook
   (window as unknown as Record<string, unknown>).__mapng = { level, vehicle, traffic, failed, scene, camera, renderer, survey: merged, bays, parked, signals };
