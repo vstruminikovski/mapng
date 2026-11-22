@@ -17,11 +17,20 @@ import { buildNames, type NamesFile } from './render/labels';
 import { loadTerrainTexture } from './render/terrain';
 import { SignalSystem } from './traffic/signals';
 import { Traffic } from './traffic/traffic';
-import type { PropInstance } from './import/types';
+import type { LevelObjects, PropInstance } from './import/types';
 import { bayLines, layoutParking, occupied } from './import/parkingLayout';
 import { buildParkedCars } from './render/parking';
 import { convertSurvey, frameOf, mergeSurvey, surveyPath, type SurveyCollection } from './import/manualSurvey';
+import { userMarkingRoads } from './import/userMarkings';
+import { buildUserItems, lampOf, type UserItem } from './render/userItems';
 
+/** The builder's Export mod: see src/builder in the Project 03 repo. */
+interface BuilderMod {
+  format: 'mapng-mod';
+  surveyFeatures: SurveyCollection['features'];
+  objects: { trees: LevelObjects['trees']; lamps: LevelObjects['lamps'] };
+  markings: { geometry: unknown; properties: { pattern?: string; width?: number }; id?: string }[];
+}
 const LEVEL_BASE = `${import.meta.env.BASE_URL}mapng/prviot_krug`.replace(/\/+/g, '/');
 const app = document.getElementById('app')!;
 const loading = document.getElementById('loading')!;
@@ -51,7 +60,9 @@ async function boot() {
   const tiles = level.index.models
     .filter((m) => m.role === 'buildings' || m.role === 'sidewalks')
     .sort((a, b) => Math.hypot(a.position[0] - spawn[0], a.position[1] - spawn[1]) - Math.hypot(b.position[0] - spawn[0], b.position[1] - spawn[1]));
-  const FIRST = 6;
+  // the start waits only for the buildings near the spawn point (within 300 m); the rest streams in behind it
+  const nearSpawn = tiles.filter((m) => Math.hypot(m.position[0] - spawn[0], m.position[1] - spawn[1]) < 300).length;
+  const FIRST = Math.max(4, nearSpawn);
   const failed: string[] = [];
   const parse = (m: (typeof tiles)[number]) =>
     loadModel(LEVEL_BASE, m, level.terrain.heightAt)
@@ -69,7 +80,19 @@ async function boot() {
   const fc: SurveyCollection | null = await fetch(surveyUrl)
     .then((r) => (r.ok ? r.json() : null))
     .catch(() => null);
-  const merged = mergeSurvey(level, convertSurvey(fc, frameOf(level.index), level.terrain.heightAt));
+  // the builder's Export mod (public/survey/active.json): its survey features, trees and lamps
+  const modUrl = `${import.meta.env.BASE_URL}survey/active.json`.replace(/\/+/g, '/');
+  const modRaw = await fetch(modUrl).then((r) => (r.ok ? r.json() : null)).catch(() => null);
+  // version 2: every builder item, drawn by the same code as the builder (userItems.ts)
+  const items: UserItem[] | null = modRaw && modRaw.format === 'mapng-mod' && modRaw.version === 2 ? (modRaw.items as UserItem[]) : null;
+  // version 1: the older survey-style export
+  const mod: BuilderMod | null = modRaw && modRaw.format === 'mapng-mod' && modRaw.version === 1 ? (modRaw as BuilderMod) : null;
+  if (mod) {
+    level.objects.trees.push(...mod.objects.trees);
+    level.objects.lamps.push(...mod.objects.lamps);
+  }
+  const surveyAll = { type: 'FeatureCollection', features: [...(fc?.features ?? []), ...(mod?.surveyFeatures ?? [])] } as SurveyCollection;
+  const merged = mergeSurvey(level, convertSurvey(surveyAll, frameOf(level.index), level.terrain.heightAt));
   level.objects = merged.objects;
   level.roads = merged.roads;
   const sv = merged.summary;
@@ -91,6 +114,16 @@ async function boot() {
     darkLights = [];
     level.roads = level.roads.filter((r) => r.kind !== 'marking' && r.kind !== 'zebra');
   }
+  // what you placed in the builder comes back after the clean map: its signs and its traffic lights
+  const yours = (p: { provenance: { source: string } }) => p.provenance.source === 'manual-survey';
+  level.objects.signs.push(...merged.signs.filter(yours).map((s) => ({ type: s.type, pos: s.pos, yaw: s.yaw, scale: s.scale, ...(s.mount ? { mount: s.mount } : {}) })));
+  // every light you placed is drawn dark: the map timing it may have been matched to is removed by the clean map
+  darkLights = [...darkLights, ...merged.lights.filter((l) => yours(l))];
+  // lines drawn in the builder (public/survey/markings.geojson): added after the clean map, so they show
+  const markingsUrl = `${import.meta.env.BASE_URL}survey/markings.geojson`.replace(/\/+/g, '/');
+  const markingsFc = items ? null : mod && mod.markings.length ? { features: mod.markings } : await fetch(markingsUrl).then((r) => (r.ok ? r.json() : null)).catch(() => null);
+  level.roads = [...level.roads, ...userMarkingRoads(markingsFc, frameOf(level.index), level.terrain.heightAt)];
+  if (markingsFc) console.info(`builder markings: ${markingsFc.features.length} features`);
   const start = level.route.start; // where the car is placed when the game starts or resets
   const parked = occupied(bays, [start.p]);
 
@@ -117,6 +150,9 @@ async function boot() {
   const drivable = level.roads.filter((r) => r.kind === 'carriageway' || r.kind === 'service');
   const signalMeshes = buildSignals(level.objects, darkLights, (p, d) => curbside(drivable, p, d, level.terrain.heightAt));
   scene.add(signalMeshes.group);
+  // the builder's items (mod version 2)
+  const userBuild = items ? buildUserItems(items, level.terrain.heightAt, (p, d) => curbside(drivable, p, d, level.terrain.heightAt)) : null;
+  if (userBuild) for (const g of [userBuild.signs, userBuild.lights, userBuild.lights2, userBuild.props, userBuild.poles, userBuild.marks]) scene.add(g);
 
   // Attach the first tiles (already parsed) and wait for them.
   let firstDone = 0;
@@ -284,6 +320,11 @@ async function boot() {
     traffic.peds.forEach((p, i) => placeOnPose(pedMeshes[i], p.pose, level.terrain.heightAt));
     cull(wx, wy);
     signalMeshes.update((id) => signals.state(id, traffic.clock));
+    if (userBuild) {
+      // the placed lights run their own timers
+      const now = performance.now() / 1000;
+      for (const u of userBuild.lightUpdaters) u.update((id) => { const r = u.recs[-1 - id]; return r && r.cat === 'light' ? lampOf(r, now) : 'off'; });
+    }
     hud.update({ speed, reverse: input.reverse });
 
     // camera
@@ -303,20 +344,20 @@ async function boot() {
     renderer.render(scene, camera);
   });
 
-  // Everything loads behind the loader: every building tile, then the props.
-  // One tile at a time, yielding between tiles so the browser never stalls.
-  let loaded = firstDone;
-  for (const m of tiles.slice(FIRST)) {
-    attach(await parse(m));
-    progress(0.45 + (0.45 * ++loaded) / tiles.length);
-    await new Promise((r) => setTimeout(r, 0));
-  }
-  progress(0.92);
+  // The rest of the map: every other building tile, then the props and the flag. One tile at a time,
+  // yielding between tiles so the car never stalls. It streams in while you start driving.
+  const streamRest = async () => {
+    for (const m of tiles.slice(FIRST)) {
+      attach(await parse(m));
+      await new Promise((r) => setTimeout(r, 0));
+    }
+    placeProps();
+    // the real flag model from the map export, at its exported position (no collision)
+    const flagTile = level.index.models.find((m) => m.role === 'flag');
+    if (flagTile) await loadModel(LEVEL_BASE, flagTile, level.terrain.heightAt).then((lm) => scene.add(lm.object)).catch((e) => console.warn('flag model failed', e));
+  };
+  progress(0.95);
   await new Promise((r) => setTimeout(r, 0));
-  placeProps();
-  // the real flag model from the map export, at its exported position (no collision)
-  const flagTile = level.index.models.find((m) => m.role === 'flag');
-  if (flagTile) await loadModel(LEVEL_BASE, flagTile, level.terrain.heightAt).then((lm) => scene.add(lm.object)).catch((e) => console.warn('flag model failed', e));
   progress(1);
 
   // The game screen appears now; 3 · 2 · 1 counts down over it, then the car is live.
@@ -332,6 +373,7 @@ async function boot() {
   count.remove();
   running = true;
   hud.toast('You are spawned at Skopje Zoo.');
+  void streamRest(); // the rest of the map loads while you drive
 
   // test hook
   (window as unknown as Record<string, unknown>).__mapng = { level, vehicle, traffic, failed, scene, camera, renderer, survey: merged, bays, parked, signals };

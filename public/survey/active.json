@@ -1,0 +1,3108 @@
+{
+  "format": "mapng-mod",
+  "version": 1,
+  "name": "version 1",
+  "label": "92 items",
+  "createdAt": "2026-11-22T00:53:22.811Z",
+  "surveyor": "Viktor",
+  "surveyFeatures": [
+    {
+      "type": "Feature",
+      "id": "B-001",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          21.417019430446025,
+          42.0055066903334
+        ]
+      },
+      "properties": {
+        "kind": "sign",
+        "code": "II-4",
+        "facing": 220.39325154354515,
+        "roadSide": "right",
+        "source": "builder (placed in the game with a free camera, not verified on site)",
+        "surveyor": "Viktor",
+        "surveyDate": "2026-11-22",
+        "verified": false
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "B-002",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          21.417032812757707,
+          42.00549670959784
+        ]
+      },
+      "properties": {
+        "kind": "light",
+        "code": "VI-4.1",
+        "facing": 129.98622339679753,
+        "roadSide": "right",
+        "source": "builder (placed in the game with a free camera, not verified on site)",
+        "surveyor": "Viktor",
+        "surveyDate": "2026-11-22",
+        "verified": false
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "B-003",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          21.417036097506937,
+          42.00549670959784
+        ]
+      },
+      "properties": {
+        "kind": "sign",
+        "code": "II-4",
+        "facing": 90,
+        "roadSide": "right",
+        "source": "builder (placed in the game with a free camera, not verified on site)",
+        "surveyor": "Viktor",
+        "surveyDate": "2026-11-22",
+        "verified": false
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "B-004",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          21.417016997298447,
+          42.00551576372935
+        ]
+      },
+      "properties": {
+        "kind": "sign",
+        "code": "III-2",
+        "facing": 162.84754650979494,
+        "roadSide": "right",
+        "source": "builder (placed in the game with a free camera, not verified on site)",
+        "surveyor": "Viktor",
+        "surveyDate": "2026-11-22",
+        "verified": false
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "B-005",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          21.416997532117822,
+          42.00553300318166
+        ]
+      },
+      "properties": {
+        "kind": "sign",
+        "code": "III-2",
+        "facing": 153.26186086565485,
+        "roadSide": "right",
+        "source": "builder (placed in the game with a free camera, not verified on site)",
+        "surveyor": "Viktor",
+        "surveyDate": "2026-11-22",
+        "verified": false
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "B-006",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          21.416990232675087,
+          42.005553871992355
+        ]
+      },
+      "properties": {
+        "kind": "sign",
+        "code": "III-2",
+        "facing": 153.6981113760512,
+        "roadSide": "right",
+        "source": "builder (placed in the game with a free camera, not verified on site)",
+        "surveyor": "Viktor",
+        "surveyDate": "2026-11-22",
+        "verified": false
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "B-007",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          21.416991449248876,
+          42.00556022336952
+        ]
+      },
+      "properties": {
+        "kind": "sign",
+        "code": "III-2",
+        "facing": 153.07823684012385,
+        "roadSide": "right",
+        "source": "builder (placed in the game with a free camera, not verified on site)",
+        "surveyor": "Viktor",
+        "surveyDate": "2026-11-22",
+        "verified": false
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "B-008",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          21.416995098970244,
+          42.00556929676548
+        ]
+      },
+      "properties": {
+        "kind": "sign",
+        "code": "III-2",
+        "facing": 153.27219894011114,
+        "roadSide": "right",
+        "source": "builder (placed in the game with a free camera, not verified on site)",
+        "surveyor": "Viktor",
+        "surveyDate": "2026-11-22",
+        "verified": false
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "B-009",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          21.41699874869161,
+          42.00557746282183
+        ]
+      },
+      "properties": {
+        "kind": "sign",
+        "code": "III-2",
+        "facing": 153.59610331506633,
+        "roadSide": "right",
+        "source": "builder (placed in the game with a free camera, not verified on site)",
+        "surveyor": "Viktor",
+        "surveyDate": "2026-11-22",
+        "verified": false
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "B-010",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          21.41700239841298,
+          42.005585628878194
+        ]
+      },
+      "properties": {
+        "kind": "sign",
+        "code": "III-2",
+        "facing": 152.801578371363,
+        "roadSide": "right",
+        "source": "builder (placed in the game with a free camera, not verified on site)",
+        "surveyor": "Viktor",
+        "surveyDate": "2026-11-22",
+        "verified": false
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "B-011",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          21.417009697855715,
+          42.00559288759496
+        ]
+      },
+      "properties": {
+        "kind": "sign",
+        "code": "III-2",
+        "facing": 153.49209329157327,
+        "roadSide": "right",
+        "source": "builder (placed in the game with a free camera, not verified on site)",
+        "surveyor": "Viktor",
+        "surveyDate": "2026-11-22",
+        "verified": false
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "B-012",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          21.417018213872236,
+          42.005594702274145
+        ]
+      },
+      "properties": {
+        "kind": "sign",
+        "code": "III-2",
+        "facing": 153.64410598032964,
+        "roadSide": "right",
+        "source": "builder (placed in the game with a free camera, not verified on site)",
+        "surveyor": "Viktor",
+        "surveyDate": "2026-11-22",
+        "verified": false
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "B-013",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          21.41702551331497,
+          42.00559107291576
+        ]
+      },
+      "properties": {
+        "kind": "sign",
+        "code": "III-2",
+        "facing": 153.61134215050868,
+        "roadSide": "right",
+        "source": "builder (placed in the game with a free camera, not verified on site)",
+        "surveyor": "Viktor",
+        "surveyDate": "2026-11-22",
+        "verified": false
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "B-014",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          21.41703037961013,
+          42.0055847215386
+        ]
+      },
+      "properties": {
+        "kind": "sign",
+        "code": "III-2",
+        "facing": 153.02526152988867,
+        "roadSide": "right",
+        "source": "builder (placed in the game with a free camera, not verified on site)",
+        "surveyor": "Viktor",
+        "surveyDate": "2026-11-22",
+        "verified": false
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "B-015",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          21.417031596183918,
+          42.00557746282183
+        ]
+      },
+      "properties": {
+        "kind": "sign",
+        "code": "III-2",
+        "facing": 153.0268957916203,
+        "roadSide": "right",
+        "source": "builder (placed in the game with a free camera, not verified on site)",
+        "surveyor": "Viktor",
+        "surveyDate": "2026-11-22",
+        "verified": false
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "B-016",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          21.41703037961013,
+          42.00556838942588
+        ]
+      },
+      "properties": {
+        "kind": "sign",
+        "code": "III-2",
+        "facing": 153.43740168446288,
+        "roadSide": "right",
+        "source": "builder (placed in the game with a free camera, not verified on site)",
+        "surveyor": "Viktor",
+        "surveyDate": "2026-11-22",
+        "verified": false
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "B-017",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          21.41702794646255,
+          42.00556022336952
+        ]
+      },
+      "properties": {
+        "kind": "sign",
+        "code": "III-2",
+        "facing": 153.51862589077655,
+        "roadSide": "right",
+        "source": "builder (placed in the game with a free camera, not verified on site)",
+        "surveyor": "Viktor",
+        "surveyDate": "2026-11-22",
+        "verified": false
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "B-018",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          21.417058360807278,
+          42.005576555482236
+        ]
+      },
+      "properties": {
+        "kind": "sign",
+        "code": "III-3",
+        "facing": 159.39697344022738,
+        "roadSide": "right",
+        "source": "builder (placed in the game with a free camera, not verified on site)",
+        "surveyor": "Viktor",
+        "surveyDate": "2026-11-22",
+        "verified": false
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "B-019",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          21.41705714423349,
+          42.00556929676548
+        ]
+      },
+      "properties": {
+        "kind": "sign",
+        "code": "III-3",
+        "facing": 158.7429387045761,
+        "roadSide": "right",
+        "source": "builder (placed in the game with a free camera, not verified on site)",
+        "surveyor": "Viktor",
+        "surveyDate": "2026-11-22",
+        "verified": false
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "B-020",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          21.4170559276597,
+          42.0055656674071
+        ]
+      },
+      "properties": {
+        "kind": "sign",
+        "code": "III-3",
+        "facing": 158.11925636696776,
+        "roadSide": "right",
+        "source": "builder (placed in the game with a free camera, not verified on site)",
+        "surveyor": "Viktor",
+        "surveyDate": "2026-11-22",
+        "verified": false
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "B-021",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          21.417042545348018,
+          42.00555024263397
+        ]
+      },
+      "properties": {
+        "kind": "sign",
+        "code": "III-3",
+        "facing": 151.9266034149233,
+        "roadSide": "right",
+        "source": "builder (placed in the game with a free camera, not verified on site)",
+        "surveyor": "Viktor",
+        "surveyDate": "2026-11-22",
+        "verified": false
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "B-022",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          21.41702916303634,
+          42.00553663254004
+        ]
+      },
+      "properties": {
+        "kind": "sign",
+        "code": "III-3",
+        "facing": 145.0785310101861,
+        "roadSide": "right",
+        "source": "builder (placed in the game with a free camera, not verified on site)",
+        "surveyor": "Viktor",
+        "surveyDate": "2026-11-22",
+        "verified": false
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "B-023",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          21.417044978495596,
+          42.005545705935994
+        ]
+      },
+      "properties": {
+        "kind": "sign",
+        "code": "III-3",
+        "facing": 161.22286844761732,
+        "roadSide": "right",
+        "source": "builder (placed in the game with a free camera, not verified on site)",
+        "surveyor": "Viktor",
+        "surveyDate": "2026-11-22",
+        "verified": false
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "B-024",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          21.417060793954857,
+          42.005562038048716
+        ]
+      },
+      "properties": {
+        "kind": "sign",
+        "code": "III-3",
+        "facing": 164.70718684948713,
+        "roadSide": "right",
+        "source": "builder (placed in the game with a free camera, not verified on site)",
+        "surveyor": "Viktor",
+        "surveyDate": "2026-11-22",
+        "verified": false
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "B-025",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          21.417071743118957,
+          42.00557746282183
+        ]
+      },
+      "properties": {
+        "kind": "sign",
+        "code": "III-3",
+        "facing": 164.80350248094487,
+        "roadSide": "right",
+        "source": "builder (placed in the game with a free camera, not verified on site)",
+        "surveyor": "Viktor",
+        "surveyDate": "2026-11-22",
+        "verified": false
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "B-026",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          21.417077825987903,
+          42.0055847215386
+        ]
+      },
+      "properties": {
+        "kind": "sign",
+        "code": "III-3",
+        "facing": 164.82658455796616,
+        "roadSide": "right",
+        "source": "builder (placed in the game with a free camera, not verified on site)",
+        "surveyor": "Viktor",
+        "surveyDate": "2026-11-22",
+        "verified": false
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "B-027",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          21.41708390885685,
+          42.005593794934555
+        ]
+      },
+      "properties": {
+        "kind": "sign",
+        "code": "III-3",
+        "facing": 164.5341110538484,
+        "roadSide": "right",
+        "source": "builder (placed in the game with a free camera, not verified on site)",
+        "surveyor": "Viktor",
+        "surveyDate": "2026-11-22",
+        "verified": false
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "B-028",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          21.41709120829958,
+          42.005602868330506
+        ]
+      },
+      "properties": {
+        "kind": "sign",
+        "code": "III-3",
+        "facing": 164.7321406186552,
+        "roadSide": "right",
+        "source": "builder (placed in the game with a free camera, not verified on site)",
+        "surveyor": "Viktor",
+        "surveyDate": "2026-11-22",
+        "verified": false
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "B-029",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          21.417097291168528,
+          42.00561103438687
+        ]
+      },
+      "properties": {
+        "kind": "sign",
+        "code": "III-3",
+        "facing": 164.7390151014091,
+        "roadSide": "right",
+        "source": "builder (placed in the game with a free camera, not verified on site)",
+        "surveyor": "Viktor",
+        "surveyDate": "2026-11-22",
+        "verified": false
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "B-030",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          21.417104590611263,
+          42.005621015122415
+        ]
+      },
+      "properties": {
+        "kind": "sign",
+        "code": "III-3",
+        "facing": 164.16037643827553,
+        "roadSide": "right",
+        "source": "builder (placed in the game with a free camera, not verified on site)",
+        "surveyor": "Viktor",
+        "surveyDate": "2026-11-22",
+        "verified": false
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "B-031",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          21.417089991725792,
+          42.00564460595189
+        ]
+      },
+      "properties": {
+        "kind": "sign",
+        "code": "III-3",
+        "facing": 136.23687799786978,
+        "roadSide": "right",
+        "source": "builder (placed in the game with a free camera, not verified on site)",
+        "surveyor": "Viktor",
+        "surveyDate": "2026-11-22",
+        "verified": false
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "B-032",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          21.417006048134347,
+          42.00564097659351
+        ]
+      },
+      "properties": {
+        "kind": "light",
+        "code": "VI-4.1",
+        "facing": 90.01424443373259,
+        "roadSide": "right",
+        "source": "builder (placed in the game with a free camera, not verified on site)",
+        "surveyor": "Viktor",
+        "surveyDate": "2026-11-22",
+        "verified": false
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "B-033",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          21.417006048134347,
+          42.00564097659351
+        ]
+      },
+      "properties": {
+        "kind": "light",
+        "code": "VI-4.1",
+        "facing": 90.01417548331108,
+        "roadSide": "right",
+        "source": "builder (placed in the game with a free camera, not verified on site)",
+        "surveyor": "Viktor",
+        "surveyDate": "2026-11-22",
+        "verified": false
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "B-034",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          21.417016997298447,
+          42.00562918117877
+        ]
+      },
+      "properties": {
+        "kind": "light",
+        "code": "VI-4.1",
+        "facing": 82.68117598711149,
+        "roadSide": "right",
+        "source": "builder (placed in the game with a free camera, not verified on site)",
+        "surveyor": "Viktor",
+        "surveyDate": "2026-11-22",
+        "verified": false
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "B-035",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          21.41701456415087,
+          42.00561466374525
+        ]
+      },
+      "properties": {
+        "kind": "light",
+        "code": "VI-4.1",
+        "facing": 74.3113087307384,
+        "roadSide": "right",
+        "source": "builder (placed in the game with a free camera, not verified on site)",
+        "surveyor": "Viktor",
+        "surveyDate": "2026-11-22",
+        "verified": false
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "B-036",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          21.417012131003293,
+          42.00562555182039
+        ]
+      },
+      "properties": {
+        "kind": "sign",
+        "code": "III-2",
+        "facing": 75.88205597879914,
+        "roadSide": "right",
+        "source": "builder (placed in the game with a free camera, not verified on site)",
+        "surveyor": "Viktor",
+        "surveyDate": "2026-11-22",
+        "verified": false
+      }
+    }
+  ],
+  "objects": {
+    "trees": [
+      {
+        "type": "mapng_tree_tree_oak_sml_b",
+        "pos": [
+          355.8,
+          226,
+          2.888593912124634
+        ],
+        "yaw": 0,
+        "scale": 1
+      },
+      {
+        "type": "mapng_tree_tree_beech_large_c",
+        "pos": [
+          359.90000000000003,
+          217.8,
+          2.7843747329711905
+        ],
+        "yaw": 0,
+        "scale": 1
+      },
+      {
+        "type": "holm_oak_city_small",
+        "pos": [
+          361.6,
+          237.8,
+          2.9782803535461424
+        ],
+        "yaw": 0,
+        "scale": 1
+      },
+      {
+        "type": "holm_oak_city_small",
+        "pos": [
+          358.1,
+          240.8,
+          2.9851193904876703
+        ],
+        "yaw": 0,
+        "scale": 1
+      }
+    ],
+    "lamps": []
+  },
+  "lights": [
+    {
+      "mode": "pole",
+      "x": 361.70000000000005,
+      "y": 222.9,
+      "z": 2.811631941795349,
+      "facing": 129.98622339679753,
+      "green": 10,
+      "yellow": 3,
+      "red": 12,
+      "offset": 0
+    },
+    {
+      "mode": "pole",
+      "x": 359.5,
+      "y": 238.8,
+      "z": 2.976989459991455,
+      "facing": 90.01424443373259,
+      "green": 10,
+      "yellow": 3,
+      "red": 12,
+      "offset": 0
+    },
+    {
+      "mode": "pole",
+      "x": 359.5,
+      "y": 238.8,
+      "z": 2.976989459991455,
+      "facing": 90.01417548331108,
+      "green": 10,
+      "yellow": 3,
+      "red": 12,
+      "offset": 0
+    },
+    {
+      "mode": "pole",
+      "x": 360.40000000000003,
+      "y": 237.5,
+      "z": 2.971541929244996,
+      "facing": 82.68117598711149,
+      "green": 10,
+      "yellow": 3,
+      "red": 12,
+      "offset": 0
+    },
+    {
+      "mode": "pole",
+      "x": 360.20000000000005,
+      "y": 235.9,
+      "z": 2.9606438589096067,
+      "facing": 74.3113087307384,
+      "green": 10,
+      "yellow": 3,
+      "red": 12,
+      "offset": 0
+    }
+  ],
+  "poles": {
+    "width": 0.24,
+    "length": 0.8,
+    "blocks": [
+      {
+        "x": 366.24,
+        "y": 235.67999999999998,
+        "z": 3.38135651512146,
+        "orient": "vert",
+        "yaw": 345
+      },
+      {
+        "x": 366,
+        "y": 235.67999999999998,
+        "z": 3.3804775905609126,
+        "orient": "vert",
+        "yaw": 345
+      },
+      {
+        "x": 366.24,
+        "y": 235.92,
+        "z": 3.38135651512146,
+        "orient": "vert",
+        "yaw": 345
+      },
+      {
+        "x": 365.28,
+        "y": 234.72,
+        "z": 3.372026744842529,
+        "orient": "vert",
+        "yaw": 345
+      },
+      {
+        "x": 364.56,
+        "y": 234.95999999999998,
+        "z": 3.370737438201904,
+        "orient": "vert",
+        "yaw": 345
+      },
+      {
+        "x": 363.36,
+        "y": 236.39999999999998,
+        "z": 3.375615463256836,
+        "orient": "vert",
+        "yaw": 345
+      },
+      {
+        "x": 363.12,
+        "y": 237.6,
+        "z": 3.3825333309173584,
+        "orient": "vert",
+        "yaw": 345
+      },
+      {
+        "x": 363.12,
+        "y": 238.32,
+        "z": 3.387154922103881,
+        "orient": "vert",
+        "yaw": 345
+      },
+      {
+        "x": 362.4,
+        "y": 240,
+        "z": 3.3963531494140624,
+        "orient": "vert",
+        "yaw": 345
+      },
+      {
+        "x": 361.91999999999996,
+        "y": 241.92,
+        "z": 3.4110450191497796,
+        "orient": "vert",
+        "yaw": 345
+      },
+      {
+        "x": 363.36,
+        "y": 243.6,
+        "z": 3.4271384429931646,
+        "orient": "vert",
+        "yaw": 345
+      },
+      {
+        "x": 364.08,
+        "y": 244.56,
+        "z": 3.434824085235596,
+        "orient": "vert",
+        "yaw": 345
+      },
+      {
+        "x": 364.32,
+        "y": 244.56,
+        "z": 3.434824085235596,
+        "orient": "vert",
+        "yaw": 345
+      },
+      {
+        "x": 364.08,
+        "y": 244.56,
+        "z": 4.234824085235596,
+        "orient": "vert",
+        "yaw": 345
+      },
+      {
+        "x": 364.32,
+        "y": 244.56,
+        "z": 4.234824085235596,
+        "orient": "vert",
+        "yaw": 345
+      },
+      {
+        "x": 364.32,
+        "y": 244.8,
+        "z": 4.234824085235596,
+        "orient": "vert",
+        "yaw": 345
+      },
+      {
+        "x": 364.32,
+        "y": 244.56,
+        "z": 5.034824085235596,
+        "orient": "vert",
+        "yaw": 345
+      },
+      {
+        "x": 364.32,
+        "y": 244.8,
+        "z": 5.034824085235596,
+        "orient": "vert",
+        "yaw": 345
+      },
+      {
+        "x": 364.56,
+        "y": 244.8,
+        "z": 5.034824085235596,
+        "orient": "vert",
+        "yaw": 345
+      },
+      {
+        "x": 363.12,
+        "y": 243.12,
+        "z": 3.422213523864746,
+        "orient": "vert",
+        "yaw": 345
+      }
+    ]
+  },
+  "markings": [
+    {
+      "type": "Feature",
+      "id": "M-001",
+      "geometry": {
+        "type": "MultiLineString",
+        "coordinates": [
+          [
+            [
+              21.41670798755602,
+              42.00527259671779
+            ],
+            [
+              21.4167044398397,
+              42.00526895489128
+            ],
+            [
+              21.416700860639004,
+              42.0052652807452
+            ],
+            [
+              21.416697296604127,
+              42.005261622167254
+            ],
+            [
+              21.416693727280013,
+              42.00525795815975
+            ],
+            [
+              21.416690152295125,
+              42.00525428834132
+            ],
+            [
+              21.41668659042799,
+              42.005250631988616
+            ],
+            [
+              21.416683008570867,
+              42.00524695511565
+            ],
+            [
+              21.416679451864585,
+              42.0052433040607
+            ],
+            [
+              21.416675866212646,
+              42.005239623292255
+            ],
+            [
+              21.41667231260134,
+              42.00523597541438
+            ],
+            [
+              21.41666872722444,
+              42.00523229492827
+            ],
+            [
+              21.416665173152808,
+              42.005228646577855
+            ],
+            [
+              21.416661589576744,
+              42.00522496794035
+            ],
+            [
+              21.4166580337245,
+              42.00522131776209
+            ],
+            [
+              21.41665445087642,
+              42.00521763987188
+            ],
+            [
+              21.41665089434199,
+              42.00521398899335
+            ],
+            [
+              21.416647311406813,
+              42.00521031101373
+            ],
+            [
+              21.41664375493898,
+              42.00520666020355
+            ],
+            [
+              21.41664017424437,
+              42.00520298452393
+            ],
+            [
+              21.41663661541659,
+              42.00519933129121
+            ],
+            [
+              21.416633037673957,
+              42.005195658641874
+            ],
+            [
+              21.416629475682406,
+              42.00519200216145
+            ],
+            [
+              21.416625900947487,
+              42.00518833259962
+            ],
+            [
+              21.41662233567518,
+              42.00518467275141
+            ],
+            [
+              21.416618763841793,
+              42.00518100616809
+            ],
+            [
+              21.41661519537938,
+              42.00517734304515
+            ],
+            [
+              21.416611626209555,
+              42.005173679196034
+            ],
+            [
+              21.416608054832498,
+              42.00517001308114
+            ],
+            [
+              21.41660448798053,
+              42.005166351611365
+            ],
+            [
+              21.416600914127233,
+              42.00516268295454
+            ],
+            [
+              21.416597349158945,
+              42.00515902341842
+            ],
+            [
+              21.416593773409954,
+              42.00515535281562
+            ],
+            [
+              21.416590209818235,
+              42.005151694692586
+            ],
+            [
+              21.416586636672125,
+              42.00514802676171
+            ],
+            [
+              21.41658307009391,
+              42.00514436557295
+            ],
+            [
+              21.41657949933557,
+              42.005140700093186
+            ],
+            [
+              21.416575930175163,
+              42.005137036253736
+            ],
+            [
+              21.41657236113423,
+              42.00513337253693
+            ],
+            [
+              21.416568790295596,
+              42.00512970697474
+            ],
+            [
+              21.416565222271238,
+              42.005126044301484
+            ],
+            [
+              21.41656165072331,
+              42.00512237801119
+            ],
+            [
+              21.416558082990385,
+              42.00511871563709
+            ],
+            [
+              21.416554512462206,
+              42.00511505039359
+            ],
+            [
+              21.41655094356482,
+              42.00511138682414
+            ],
+            [
+              21.416547374015693,
+              42.00510772258566
+            ],
+            [
+              21.41654380428566,
+              42.00510405816148
+            ],
+            [
+              21.4165402349488,
+              42.005100394140904
+            ],
+            [
+              21.41653666545049,
+              42.005096729954595
+            ],
+            [
+              21.416533095558528,
+              42.005093065364186
+            ],
+            [
+              21.41652952735182,
+              42.005089402503735
+            ],
+            [
+              21.416525956140756,
+              42.00508573655924
+            ],
+            [
+              21.416522388569486,
+              42.00508207435109
+            ],
+            [
+              21.41651881697875,
+              42.00507840801684
+            ],
+            [
+              21.416515248796404,
+              42.0050747451814
+            ],
+            [
+              21.416511678331744,
+              42.005071080003106
+            ],
+            [
+              21.416508108828044,
+              42.00506741581126
+            ],
+            [
+              21.416504540423638,
+              42.005063752747866
+            ],
+            [
+              21.416500968916555,
+              42.0050600864995
+            ],
+            [
+              21.416497403431833,
+              42.00505642643324
+            ],
+            [
+              21.41649382927444,
+              42.005052757464256
+            ],
+            [
+              21.41649026561998,
+              42.00504909927682
+            ],
+            [
+              21.41648669006506,
+              42.00504542887323
+            ],
+            [
+              21.416483124843257,
+              42.00504176907687
+            ],
+            [
+              21.41647955139393,
+              42.00503810083473
+            ],
+            [
+              21.416475984141634,
+              42.00503443895401
+            ],
+            [
+              21.41647241330112,
+              42.00503077338989
+            ],
+            [
+              21.416468843637276,
+              42.005027109033655
+            ],
+            [
+              21.41646527575526,
+              42.00502344650651
+            ],
+            [
+              21.41646170339853,
+              42.005019779385954
+            ],
+            [
+              21.41645813864988,
+              42.0050161200753
+            ],
+            [
+              21.416454563440563,
+              42.00501245002648
+            ],
+            [
+              21.41645100180305,
+              42.00500879390949
+            ],
+            [
+              21.41644742373052,
+              42.00500512092151
+            ],
+            [
+              21.41644386496185,
+              42.00500146774946
+            ],
+            [
+              21.41644028419898,
+              42.00499779199978
+            ],
+            [
+              21.416436727813725,
+              42.004994141274366
+            ],
+            [
+              21.416433144760244,
+              42.00499046317331
+            ],
+            [
+              21.416429590007688,
+              42.00498681412391
+            ],
+            [
+              21.416426005345127,
+              42.00498313437109
+            ],
+            [
+              21.41642245118971,
+              42.00497948593467
+            ],
+            [
+              21.416418865951265,
+              42.00497580559068
+            ],
+            [
+              21.416415311058355,
+              42.00497215639721
+            ],
+            [
+              21.41641172671835,
+              42.00496847697549
+            ],
+            [
+              21.41640816944964,
+              42.004964825343194
+            ],
+            [
+              21.416404588038727,
+              42.00496114892828
+            ],
+            [
+              21.416401026464047,
+              42.00495749287578
+            ],
+            [
+              21.416397450718627,
+              42.00495382227665
+            ],
+            [
+              21.41639388265478,
+              42.004950159562846
+            ],
+            [
+              21.416390316212276,
+              42.004946498513405
+            ],
+            [
+              21.41638673930556,
+              42.004942826722164
+            ],
+            [
+              21.416383186961866,
+              42.00493918014553
+            ],
+            [
+              21.416379598840535,
+              42.00493549684218
+            ],
+            [
+              21.416376040384147,
+              42.0049318439907
+            ],
+            [
+              21.4163724654309,
+              42.00492817420475
+            ],
+            [
+              21.416368890445515,
+              42.004924504385805
+            ],
+            [
+              21.41636534311721,
+              42.004920862957604
+            ],
+            [
+              21.41636175251569,
+              42.004917177108275
+            ],
+            [
+              21.41635818221197,
+              42.00491351209519
+            ],
+            [
+              21.416354634582795,
+              42.004909870358134
+            ],
+            [
+              21.416351045966763,
+              42.00490618654697
+            ],
+            [
+              21.416347469889935,
+              42.004902515607625
+            ],
+            [
+              21.416343908757714,
+              42.004898860009334
+            ],
+            [
+              21.416340359287002,
+              42.00489521638189
+            ],
+            [
+              21.416336773893,
+              42.00489153587822
+            ],
+            [
+              21.416333195137454,
+              42.00488786218911
+            ],
+            [
+              21.41632962162197,
+              42.00488419387906
+            ],
+            [
+              21.41632605089889,
+              42.004880528435486
+            ],
+            [
+              21.416322483029294,
+              42.00487686592109
+            ],
+            [
+              21.41631892491029,
+              42.00487321341594
+            ],
+            [
+              21.41631535514976,
+              42.00486954896046
+            ],
+            [
+              21.41631177779725,
+              42.0048658767116
+            ],
+            [
+              21.416308223361195,
+              42.0048622279871
+            ],
+            [
+              21.41630681563611,
+              42.004860782919316
+            ],
+            [
+              21.416310389925695,
+              42.004864452024
+            ],
+            [
+              21.41631394538584,
+              42.00486810179976
+            ],
+            [
+              21.41631751583708,
+              42.00487176696428
+            ],
+            [
+              21.41632108788429,
+              42.004875433767104
+            ],
+            [
+              21.416324668619396,
+              42.00487910948829
+            ],
+            [
+              21.416328226588753,
+              42.00488276183982
+            ],
+            [
+              21.416331804655318,
+              42.004886434821685
+            ],
+            [
+              21.416335369239267,
+              42.00489009396327
+            ],
+            [
+              21.416338936897105,
+              42.00489375626029
+            ],
+            [
+              21.41634251033403,
+              42.00489742448969
+            ],
+            [
+              21.416346084429463,
+              42.00490109339508
+            ],
+            [
+              21.416349649516054,
+              42.00490475305264
+            ],
+            [
+              21.416353217287263,
+              42.00490841546603
+            ],
+            [
+              21.41635678656436,
+              42.00491207942527
+            ],
+            [
+              21.416360356598524,
+              42.00491574416164
+            ],
+            [
+              21.416363926929687,
+              42.004919409202905
+            ],
+            [
+              21.416367497288896,
+              42.00492307427295
+            ],
+            [
+              21.416371067530736,
+              42.00492673922252
+            ],
+            [
+              21.41637463758671,
+              42.004930403981284
+            ],
+            [
+              21.416378207433187,
+              42.004934068525
+            ],
+            [
+              21.41638177706943,
+              42.00493773285291
+            ],
+            [
+              21.41638534641908,
+              42.004941396886615
+            ],
+            [
+              21.416388915647126,
+              42.00494506079549
+            ],
+            [
+              21.416392485046845,
+              42.0049487248806
+            ],
+            [
+              21.416396054601233,
+              42.004952389124476
+            ],
+            [
+              21.416399624303597,
+              42.00495605352025
+            ],
+            [
+              21.416403194150572,
+              42.004959718064484
+            ],
+            [
+              21.416406764133203,
+              42.00496338274797
+            ],
+            [
+              21.416410334224537,
+              42.004967047543026
+            ],
+            [
+              21.416413904361693,
+              42.00497071238514
+            ],
+            [
+              21.416417474419852,
+              42.00497437714614
+            ],
+            [
+              21.416421044174395,
+              42.004978041595486
+            ],
+            [
+              21.416424613246228,
+              42.00498170534401
+            ],
+            [
+              21.416428181022866,
+              42.00498536776298
+            ],
+            [
+              21.416431746544824,
+              42.00498902786746
+            ],
+            [
+              21.416435320427762,
+              42.00499269655471
+            ],
+            [
+              21.416438893724695,
+              42.00499636464041
+            ],
+            [
+              21.41644246276412,
+              42.00500002835567
+            ],
+            [
+              21.416446023400844,
+              42.00500368344532
+            ],
+            [
+              21.416449603425534,
+              42.00500735843724
+            ],
+            [
+              21.416453168567806,
+              42.00501101815196
+            ],
+            [
+              21.41645674388135,
+              42.005014688307774
+            ],
+            [
+              21.416460304288552,
+              42.005018343161815
+            ],
+            [
+              21.41646387047792,
+              42.00502200395141
+            ],
+            [
+              21.416467448931765,
+              42.00502567733082
+            ],
+            [
+              21.416471008051307,
+              42.005029330863046
+            ],
+            [
+              21.41647457684398,
+              42.005032994325006
+            ],
+            [
+              21.41647814589333,
+              42.00503665805044
+            ],
+            [
+              21.41648171471693,
+              42.00504032154415
+            ],
+            [
+              21.41648528399858,
+              42.00504398550805
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "pattern": "solid",
+        "width": 0.12,
+        "surveyor": "Viktor",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "M-002",
+      "geometry": {
+        "type": "MultiLineString",
+        "coordinates": [
+          [
+            [
+              21.416565648422697,
+              42.005628564648845
+            ],
+            [
+              21.41658633017711,
+              42.0056018481581
+            ]
+          ],
+          [
+            [
+              21.416589001958585,
+              42.00560928485172
+            ],
+            [
+              21.4165875467509,
+              42.00560027659982
+            ],
+            [
+              21.416576358952902,
+              42.00560384081415
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "pattern": "arrow_straight",
+        "width": 0.5,
+        "surveyor": "Viktor",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "M-003",
+      "geometry": {
+        "type": "MultiLineString",
+        "coordinates": [
+          [
+            [
+              21.416633776554885,
+              42.00554871876445
+            ],
+            [
+              21.4166544583093,
+              42.00552200227371
+            ]
+          ],
+          [
+            [
+              21.416657130090773,
+              42.00552943896733
+            ],
+            [
+              21.41665567488309,
+              42.00552043071543
+            ],
+            [
+              21.41664448708509,
+              42.00552399492976
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "pattern": "arrow_straight",
+        "width": 0.5,
+        "surveyor": "Viktor",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "M-004",
+      "geometry": {
+        "type": "MultiLineString",
+        "coordinates": [
+          [
+            [
+              21.416684658073645,
+              42.00546433437507
+            ],
+            [
+              21.4166953637375,
+              42.00543453600162
+            ]
+          ],
+          [
+            [
+              21.416700525222957,
+              42.00544120355872
+            ],
+            [
+              21.416695993482435,
+              42.005432783156124
+            ],
+            [
+              21.416686423782448,
+              42.00543838551751
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "pattern": "arrow_straight",
+        "width": 0.5,
+        "surveyor": "Viktor",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "M-005",
+      "geometry": {
+        "type": "MultiLineString",
+        "coordinates": [
+          [
+            [
+              21.416698254965706,
+              42.00539690224235
+            ],
+            [
+              21.416698254965706,
+              42.00536605269611
+            ]
+          ],
+          [
+            [
+              21.41670555440844,
+              42.00537149673368
+            ],
+            [
+              21.416698254965706,
+              42.00536423801692
+            ],
+            [
+              21.41669095552297,
+              42.00537149673368
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "pattern": "arrow_straight",
+        "width": 0.5,
+        "surveyor": "Viktor",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "M-006",
+      "geometry": {
+        "type": "MultiLineString",
+        "coordinates": [
+          [
+            [
+              21.41706283718071,
+              42.00532522241432
+            ],
+            [
+              21.417098659030145,
+              42.00534064718744
+            ]
+          ],
+          [
+            [
+              21.417090349676638,
+              42.005342307734146
+            ],
+            [
+              21.41709971261395,
+              42.00534110085724
+            ],
+            [
+              21.417096432545584,
+              42.00533444994275
+            ]
+          ],
+          [
+            [
+              21.417077587354008,
+              42.00533157379149
+            ],
+            [
+              21.417087232598252,
+              42.00533363159159
+            ],
+            [
+              21.417097812109354,
+              42.0053308531564
+            ]
+          ],
+          [
+            [
+              21.417093880081058,
+              42.00533230315422
+            ],
+            [
+              21.417097812109354,
+              42.0053308531564
+            ],
+            [
+              21.417092989487234,
+              42.00532982425635
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "pattern": "arrow_straight_right",
+        "width": 0.5,
+        "surveyor": "Viktor",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "M-007",
+      "geometry": {
+        "type": "MultiLineString",
+        "coordinates": [
+          [
+            [
+              21.41684872019383,
+              42.00542593710941
+            ],
+            [
+              21.416884542043267,
+              42.005441361882525
+            ]
+          ],
+          [
+            [
+              21.41687623268976,
+              42.00544302242923
+            ],
+            [
+              21.416885595627072,
+              42.005441815552324
+            ],
+            [
+              21.416882315558702,
+              42.00543516463784
+            ]
+          ],
+          [
+            [
+              21.416863470367126,
+              42.005432288486574
+            ],
+            [
+              21.41687311561137,
+              42.00543434628668
+            ],
+            [
+              21.416883695122475,
+              42.00543156785149
+            ]
+          ],
+          [
+            [
+              21.416879763094176,
+              42.005433017849306
+            ],
+            [
+              21.416883695122475,
+              42.00543156785149
+            ],
+            [
+              21.41687887250035,
+              42.00543053895144
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "pattern": "arrow_straight_right",
+        "width": 0.5,
+        "surveyor": "Viktor",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "M-008",
+      "geometry": {
+        "type": "MultiLineString",
+        "coordinates": [
+          [
+            [
+              21.416890083702658,
+              42.00541141967588
+            ],
+            [
+              21.416925905552095,
+              42.005426844449
+            ]
+          ],
+          [
+            [
+              21.416917596198587,
+              42.00542850499571
+            ],
+            [
+              21.4169269591359,
+              42.005427298118796
+            ],
+            [
+              21.416923679067533,
+              42.00542064720432
+            ]
+          ],
+          [
+            [
+              21.416904833875954,
+              42.00541777105305
+            ],
+            [
+              21.4169144791202,
+              42.00541982885315
+            ],
+            [
+              21.416925058631303,
+              42.00541705041796
+            ]
+          ],
+          [
+            [
+              21.416921126603008,
+              42.005418500415786
+            ],
+            [
+              21.416925058631303,
+              42.00541705041796
+            ],
+            [
+              21.41692023600918,
+              42.00541602151791
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "pattern": "arrow_straight_right",
+        "width": 0.5,
+        "surveyor": "Viktor",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "M-009",
+      "geometry": {
+        "type": "MultiLineString",
+        "coordinates": [
+          [
+            [
+              21.416842637324883,
+              42.005382384808826
+            ],
+            [
+              21.41687845917432,
+              42.00539780958195
+            ]
+          ],
+          [
+            [
+              21.416870149820813,
+              42.00539947012866
+            ],
+            [
+              21.416879512758126,
+              42.00539826325175
+            ],
+            [
+              21.41687623268976,
+              42.00539161233726
+            ]
+          ],
+          [
+            [
+              21.41685738749818,
+              42.00538873618599
+            ],
+            [
+              21.416867032742424,
+              42.005390793986095
+            ],
+            [
+              21.41687761225353,
+              42.005388015550906
+            ]
+          ],
+          [
+            [
+              21.41687368022523,
+              42.00538946554873
+            ],
+            [
+              21.41687761225353,
+              42.005388015550906
+            ],
+            [
+              21.416872789631405,
+              42.005386986650855
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "pattern": "arrow_straight_right",
+        "width": 0.5,
+        "surveyor": "Viktor",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "M-010",
+      "geometry": {
+        "type": "MultiLineString",
+        "coordinates": [
+          [
+            [
+              21.417169069022084,
+              42.00569178761085
+            ],
+            [
+              21.417163916915435,
+              42.00568939706751
+            ],
+            [
+              21.41715866132651,
+              42.0056871340693
+            ],
+            [
+              21.417153496032835,
+              42.00568475995221
+            ],
+            [
+              21.417148637704482,
+              42.00568205409745
+            ],
+            [
+              21.41714435416929,
+              42.00567886151793
+            ],
+            [
+              21.417140800683814,
+              42.00567519553165
+            ],
+            [
+              21.41713770426004,
+              42.00567129830061
+            ],
+            [
+              21.417134819800577,
+              42.0056673110138
+            ],
+            [
+              21.417131941736326,
+              42.00566332386625
+            ],
+            [
+              21.417128828428538,
+              42.005659437916314
+            ],
+            [
+              21.417125161795923,
+              42.00565583805462
+            ],
+            [
+              21.41712117151647,
+              42.00565243086562
+            ],
+            [
+              21.41711672558347,
+              42.0056493594308
+            ],
+            [
+              21.417111734163253,
+              42.005646795105015
+            ],
+            [
+              21.417106386669673,
+              42.00564465321462
+            ],
+            [
+              21.417100817168002,
+              42.00564285778258
+            ],
+            [
+              21.41709507133826,
+              42.00564140090928
+            ],
+            [
+              21.41708917852838,
+              42.00564031742865
+            ],
+            [
+              21.41708315616947,
+              42.00563991960253
+            ],
+            [
+              21.41707713523424,
+              42.005640477042974
+            ],
+            [
+              21.417071171194387,
+              42.00564132108979
+            ],
+            [
+              21.417065152198663,
+              42.00564188361321
+            ],
+            [
+              21.41705911519588,
+              42.00564160340025
+            ],
+            [
+              21.417053442602175,
+              42.00564007433495
+            ],
+            [
+              21.417048382035688,
+              42.005637565439024
+            ],
+            [
+              21.417043868454645,
+              42.00563455331456
+            ],
+            [
+              21.417039693727844,
+              42.005631272530636
+            ],
+            [
+              21.417035706948468,
+              42.005627850548024
+            ],
+            [
+              21.417031804994345,
+              42.005624373465196
+            ],
+            [
+              21.417027902204357,
+              42.00562090044111
+            ],
+            [
+              21.417023925573687,
+              42.00561748161045
+            ],
+            [
+              21.41701980001089,
+              42.00561415996947
+            ],
+            [
+              21.41701546125461,
+              42.005610992338724
+            ],
+            [
+              21.41701084961276,
+              42.00560804873932
+            ],
+            [
+              21.41700598402217,
+              42.00560541627931
+            ],
+            [
+              21.41700089535907,
+              42.005602931215314
+            ],
+            [
+              21.416995696192313,
+              42.005600567944995
+            ],
+            [
+              21.41699042487255,
+              42.00559830816419
+            ],
+            [
+              21.41698511321309,
+              42.00559613904714
+            ],
+            [
+              21.416979738420032,
+              42.00559403198192
+            ],
+            [
+              21.416974318008194,
+              42.00559197935019
+            ],
+            [
+              21.416968869960233,
+              42.005589975809954
+            ],
+            [
+              21.416963398619256,
+              42.00558801255333
+            ],
+            [
+              21.416957899479797,
+              42.005586078932055
+            ],
+            [
+              21.416952387903287,
+              42.00558417197641
+            ],
+            [
+              21.416946877646005,
+              42.00558228811865
+            ],
+            [
+              21.41694135824738,
+              42.00558041518312
+            ],
+            [
+              21.41693581109266,
+              42.00557853728243
+            ],
+            [
+              21.41693027215668,
+              42.00557665472664
+            ],
+            [
+              21.41692474988728,
+              42.005574754312725
+            ],
+            [
+              21.416919162095812,
+              42.00557278082433
+            ],
+            [
+              21.41691387169063,
+              42.005570828182776
+            ],
+            [
+              21.416908472541195,
+              42.00556877627421
+            ],
+            [
+              21.416903064717374,
+              42.0055667203252
+            ],
+            [
+              21.416897612663544,
+              42.0055647292589
+            ],
+            [
+              21.416892066855382,
+              42.00556289513539
+            ],
+            [
+              21.41688637324157,
+              42.00556134042888
+            ],
+            [
+              21.41688049660365,
+              42.00556020989674
+            ],
+            [
+              21.416874519501434,
+              42.005559434145944
+            ],
+            [
+              21.41686847562323,
+              42.005559051234826
+            ],
+            [
+              21.41686241748342,
+              42.005559219363185
+            ],
+            [
+              21.416856467772654,
+              42.00556008213346
+            ],
+            [
+              21.41685099535571,
+              42.005562000625616
+            ],
+            [
+              21.416846142396682,
+              42.005564714983244
+            ],
+            [
+              21.416841440737894,
+              42.005567578002655
+            ],
+            [
+              21.416836432563567,
+              42.00557012620763
+            ],
+            [
+              21.416830941943353,
+              42.00557200166338
+            ],
+            [
+              21.41682530977755,
+              42.00557372413139
+            ],
+            [
+              21.416819640368487,
+              42.005575346798565
+            ],
+            [
+              21.416813882578047,
+              42.00557680366621
+            ],
+            [
+              21.416808018553546,
+              42.00557798939726
+            ],
+            [
+              21.4168020321897,
+              42.005578706163824
+            ],
+            [
+              21.41679597983844,
+              42.00557845988584
+            ],
+            [
+              21.416790928409366,
+              42.00557613616929
+            ],
+            [
+              21.41678759295308,
+              42.005572361204926
+            ],
+            [
+              21.41678518993357,
+              42.00556821203665
+            ],
+            [
+              21.41678340402795,
+              42.005563872191615
+            ],
+            [
+              21.416782188939333,
+              42.00555943349336
+            ],
+            [
+              21.416781647228397,
+              42.00555490687906
+            ],
+            [
+              21.41678225188022,
+              42.00555040870259
+            ],
+            [
+              21.416785694788132,
+              42.00554688310194
+            ],
+            [
+              21.41679135233263,
+              42.00554527542062
+            ],
+            [
+              21.416797357120743,
+              42.00554462853983
+            ],
+            [
+              21.416803430243075,
+              42.005544460415805
+            ],
+            [
+              21.41680950840488,
+              42.00554458708261
+            ],
+            [
+              21.416815569855835,
+              42.005544920241
+            ],
+            [
+              21.41682161698882,
+              42.00554541322941
+            ],
+            [
+              21.416827570982502,
+              42.00554612535682
+            ],
+            [
+              21.41683334528216,
+              42.005547479206186
+            ],
+            [
+              21.416838954577806,
+              42.005549252101886
+            ],
+            [
+              21.416844410680536,
+              42.00555123255204
+            ],
+            [
+              21.416849811910303,
+              42.00555331069037
+            ],
+            [
+              21.41685521150849,
+              42.005555382872544
+            ],
+            [
+              21.4168607106667,
+              42.00555733993582
+            ],
+            [
+              21.416866376412404,
+              42.00555895835072
+            ],
+            [
+              21.416872460770623,
+              42.00555967294276
+            ],
+            [
+              21.416877978988122,
+              42.00555822666693
+            ],
+            [
+              21.41688243223653,
+              42.00555516576002
+            ],
+            [
+              21.41688679227633,
+              42.00555202590962
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "pattern": "solid",
+        "width": 0.12,
+        "surveyor": "Viktor",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "M-011",
+      "geometry": {
+        "type": "MultiLineString",
+        "coordinates": [
+          [
+            [
+              21.417099724316106,
+              42.005679992196114
+            ],
+            [
+              21.417098690987082,
+              42.00568434364168
+            ],
+            [
+              21.417097196495536,
+              42.00568862268908
+            ],
+            [
+              21.417095659450368,
+              42.005692893824055
+            ],
+            [
+              21.41709447797274,
+              42.005697225541276
+            ],
+            [
+              21.41709421926866,
+              42.00570163392156
+            ],
+            [
+              21.417095723636947,
+              42.00570588358451
+            ],
+            [
+              21.41709917250708,
+              42.00570945969802
+            ],
+            [
+              21.417103503748894,
+              42.005712475527744
+            ],
+            [
+              21.417108252408546,
+              42.00571512283821
+            ],
+            [
+              21.417113256211188,
+              42.005717495679306
+            ],
+            [
+              21.417118441523805,
+              42.00571963941562
+            ],
+            [
+              21.41712377300662,
+              42.00572157396004
+            ],
+            [
+              21.417129232166833,
+              42.00572329985841
+            ],
+            [
+              21.41713481026889,
+              42.005724798704286
+            ],
+            [
+              21.41714050379924,
+              42.00572602571236
+            ],
+            [
+              21.41714632037858,
+              42.005726888773914
+            ],
+            [
+              21.417152227287552,
+              42.00572717403188
+            ],
+            [
+              21.417158053910534,
+              42.005726437281176
+            ],
+            [
+              21.417163500793425,
+              42.00572470829399
+            ],
+            [
+              21.41716850592277,
+              42.005722343155355
+            ],
+            [
+              21.417173139327023,
+              42.00571958592702
+            ],
+            [
+              21.417177496310845,
+              42.00571658704631
+            ],
+            [
+              21.41718167214856,
+              42.005713447517024
+            ],
+            [
+              21.417185774071868,
+              42.00571025405673
+            ],
+            [
+              21.417189649108025,
+              42.00570691219131
+            ],
+            [
+              21.417192999735285,
+              42.0057032658765
+            ],
+            [
+              21.41719599800961,
+              42.00569945135291
+            ],
+            [
+              21.417198893748218,
+              42.00569559260271
+            ],
+            [
+              21.417201955529553,
+              42.005691806474296
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "pattern": "solid",
+        "width": 0.12,
+        "surveyor": "Viktor",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "M-012",
+      "geometry": {
+        "type": "MultiLineString",
+        "coordinates": [
+          [
+            [
+              21.417193400497865,
+              42.005685436233684
+            ],
+            [
+              21.417211661403144,
+              42.00567819474134
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "pattern": "solid",
+        "width": 0.12,
+        "surveyor": "Viktor",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "M-013",
+      "geometry": {
+        "type": "MultiLineString",
+        "coordinates": [
+          [
+            [
+              21.417235980580482,
+              42.005670918800156
+            ],
+            [
+              21.417234078288082,
+              42.00566729738789
+            ],
+            [
+              21.417238250476338,
+              42.00566417044614
+            ],
+            [
+              21.41724299284163,
+              42.00566150987882
+            ],
+            [
+              21.41724790042726,
+              42.005659023896264
+            ],
+            [
+              21.417252893063097,
+              42.00565663145061
+            ],
+            [
+              21.417257934793387,
+              42.00565429821691
+            ],
+            [
+              21.417263009503916,
+              42.005652003632996
+            ],
+            [
+              21.4172681053129,
+              42.00564973538003
+            ],
+            [
+              21.41727321453741,
+              42.005647484346696
+            ],
+            [
+              21.41727833162164,
+              42.00564524319675
+            ],
+            [
+              21.417283451685307,
+              42.00564300567433
+            ],
+            [
+              21.417288569992344,
+              42.00564076593599
+            ],
+            [
+              21.417293681690303,
+              42.005638517903215
+            ],
+            [
+              21.417298781384996,
+              42.00563625460501
+            ],
+            [
+              21.417303861989392,
+              42.00563396749487
+            ],
+            [
+              21.417308912606973,
+              42.00563164537851
+            ],
+            [
+              21.41731391887904,
+              42.00562927012681
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "pattern": "solid",
+        "width": 0.12,
+        "surveyor": "Viktor",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "M-014",
+      "geometry": {
+        "type": "MultiLineString",
+        "coordinates": [
+          [
+            [
+              21.41731870759814,
+              42.005621015122415
+            ],
+            [
+              21.417399827404875,
+              42.00557705900184
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "pattern": "solid",
+        "width": 0.12,
+        "surveyor": "Viktor",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "M-015",
+      "geometry": {
+        "type": "MultiLineString",
+        "coordinates": [
+          [
+            [
+              21.417399827404875,
+              42.00557705900184
+            ],
+            [
+              21.417385752681838,
+              42.005592050480935
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "pattern": "solid",
+        "width": 0.12,
+        "surveyor": "Viktor",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "M-016",
+      "geometry": {
+        "type": "MultiLineString",
+        "coordinates": [
+          [
+            [
+              21.417399827404875,
+              42.00557705900184
+            ],
+            [
+              21.417377070926605,
+              42.00558005164704
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "pattern": "solid",
+        "width": 0.12,
+        "surveyor": "Viktor",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "M-017",
+      "geometry": {
+        "type": "MultiLineString",
+        "coordinates": [
+          [
+            [
+              21.41728342695826,
+              42.005626459159984
+            ],
+            [
+              21.41727601690255,
+              42.005615612725435
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "pattern": "solid",
+        "width": 0.12,
+        "surveyor": "Viktor",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "M-018",
+      "geometry": {
+        "type": "MultiLineString",
+        "coordinates": [
+          [
+            [
+              21.41727601690255,
+              42.005615612725435
+            ],
+            [
+              21.41728342695826,
+              42.005626459159984
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "pattern": "solid",
+        "width": 0.12,
+        "surveyor": "Viktor",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "M-019",
+      "geometry": {
+        "type": "MultiLineString",
+        "coordinates": [
+          [
+            [
+              21.41728342695826,
+              42.005626459159984
+            ],
+            [
+              21.417278560619273,
+              42.005626459159984
+            ],
+            [
+              21.417273694367946,
+              42.005626459159984
+            ],
+            [
+              21.417278560619273,
+              42.005626459159984
+            ],
+            [
+              21.41728342695826,
+              42.005626459159984
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "pattern": "solid",
+        "width": 0.12,
+        "surveyor": "Viktor",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "M-020",
+      "geometry": {
+        "type": "MultiLineString",
+        "coordinates": [
+          [
+            [
+              21.41728342695826,
+              42.005626459159984
+            ],
+            [
+              21.417278967217914,
+              42.005626519841016
+            ],
+            [
+              21.417283543163375,
+              42.00562596128375
+            ],
+            [
+              21.417281412421993,
+              42.00562238256942
+            ],
+            [
+              21.417278665390405,
+              42.005619018761905
+            ],
+            [
+              21.41727601690255,
+              42.005615612725435
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "pattern": "solid",
+        "width": 0.12,
+        "surveyor": "Viktor",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "M-021",
+      "geometry": {
+        "type": "MultiLineString",
+        "coordinates": [
+          [
+            [
+              21.41727601690255,
+              42.005615612725435
+            ],
+            [
+              21.41727858061599,
+              42.00562645654084
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "pattern": "solid",
+        "width": 0.12,
+        "surveyor": "Viktor",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "M-022",
+      "geometry": {
+        "type": "MultiLineString",
+        "coordinates": [
+          [
+            [
+              21.417273694367946,
+              42.005626459159984
+            ],
+            [
+              21.417253032278165,
+              42.005634652859186
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "pattern": "solid",
+        "width": 0.12,
+        "surveyor": "Viktor",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "M-023",
+      "geometry": {
+        "type": "MultiLineString",
+        "coordinates": [
+          [
+            [
+              21.417245713170797,
+              42.00564460595189
+            ],
+            [
+              21.41724689682263,
+              42.00564914749158
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "pattern": "solid",
+        "width": 0.12,
+        "surveyor": "Viktor",
+        "verified": false,
+        "note": ""
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "M-024",
+      "geometry": {
+        "type": "MultiLineString",
+        "coordinates": [
+          [
+            [
+              21.417245713170797,
+              42.00564460595189
+            ],
+            [
+              21.417228675125052,
+              42.005647306958856
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "pattern": "solid",
+        "width": 0.12,
+        "surveyor": "Viktor",
+        "verified": false,
+        "note": ""
+      }
+    }
+  ]
+}

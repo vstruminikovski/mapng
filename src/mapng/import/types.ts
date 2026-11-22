@@ -86,6 +86,8 @@ export interface PropInstance {
   scale: number;
   /** sign post height in metres (default 2.4); a sign above a traffic light is mounted higher */
   mount?: number;
+  /** sign plate only, no post (the builder's floating signs) */
+  floating?: boolean;
 }
 
 export interface LevelObjects {

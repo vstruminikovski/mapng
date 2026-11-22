@@ -129,16 +129,24 @@ export function buildProps(objects: LevelObjects, blocked: Blocked = () => false
     const post = s.mount ?? 2.4;
     const stick = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, post, 6), new THREE.MeshStandardMaterial({ color: 0x777777 }));
     stick.position.y = post / 2;
-    const modelled = s.type in signColor;
-    const face = osmFace(s.type);
-    const plate = new THREE.Mesh(
-      face ? new THREE.CylinderGeometry(0.33, 0.33, 0.04, 24) : !modelled ? new THREE.BoxGeometry(0.6, 0.04, 0.6) : s.type === 'give_way' ? new THREE.CylinderGeometry(0.45, 0.45, 0.04, 3) : s.type === 'priorityroad' ? new THREE.BoxGeometry(0.5, 0.04, 0.5) : new THREE.CylinderGeometry(0.33, 0.33, 0.04, 20),
-      face ?? (modelled ? new THREE.MeshStandardMaterial({ color: signColor[s.type] }) : codePlate(s.type)),
-    );
-    plate.rotation.x = Math.PI / 2;
-    if (s.type === 'priorityroad') plate.rotation.z = Math.PI / 4;
-    plate.position.y = post + 0.1;
-    grp.add(stick, plate);
+    // signs with a drawn face: flat shapes facing the road, plate centred on the top of the pole
+    const layers = signLayers(s.type);
+    let plate: THREE.Object3D;
+    if (layers) {
+      plate = signFace(layers);
+      plate.position.y = post;
+    } else {
+      const modelled = s.type in signColor;
+      const face = osmFace(s.type);
+      const mesh = new THREE.Mesh(
+        face ? new THREE.CylinderGeometry(0.33, 0.33, 0.04, 24) : !modelled ? new THREE.BoxGeometry(0.6, 0.04, 0.6) : new THREE.CylinderGeometry(0.33, 0.33, 0.04, 20),
+        face ?? (modelled ? new THREE.MeshStandardMaterial({ color: signColor[s.type] }) : codePlate(s.type)),
+      );
+      mesh.rotation.x = Math.PI / 2;
+      mesh.position.y = post + 0.1;
+      plate = mesh;
+    }
+    if (s.floating) grp.add(plate); else grp.add(stick, plate);
     grp.position.set(s.pos[0], s.pos[2], -s.pos[1]);
     grp.rotation.y = s.yaw;
     g.add(grp);
@@ -155,21 +163,26 @@ export function buildSignals(
   dark: { pos: number[]; dir: number[] }[] = [],
   /** where to stand the pole of an OSM/MapNG head (its point marks the stop position on the road centre) */
   poleAt: (pos: number[], dir: number[]) => number[] = (p) => p,
+  /** pole: false when the head is glued to a pole the player built (the builder) */
+  opts: { pole?: boolean } = {},
 ) {
   const g = new THREE.Group();
   g.name = 'signals';
   const heads = new Map<number, THREE.MeshStandardMaterial[]>();
   const pedHeads = new Map<number, { red: THREE.MeshStandardMaterial; green: THREE.MeshStandardMaterial }>();
   const housing = new THREE.MeshStandardMaterial({ color: 0x1d1f22 });
+  // the head itself is a normal grey housing; lenses show their colour when off, brighter when lit
+  const headHousing = new THREE.MeshStandardMaterial({ color: 0x5c626b, roughness: 0.55 });
   const list = [...objects.signals.instances.map((s) => ({ ...s, lit: true })), ...dark.map((d, k) => ({ id: -1 - k, pos: d.pos, dir: d.dir, lit: false }))];
   for (const s of list) {
     const grp = new THREE.Group();
     const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.1, 3.2, 8), housing);
     pole.position.y = 1.6;
-    const box = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.95, 0.3), housing);
+    const box = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.95, 0.3), headHousing);
     box.position.y = 3.5;
-    grp.add(pole, box);
-    const mats = [0xff2a1a, 0xffb000, 0x2bd94a].map((c) => new THREE.MeshStandardMaterial({ color: 0x222222, emissive: c, emissiveIntensity: 0 }));
+    if (opts.pole !== false) grp.add(pole, box);
+    else grp.add(box);
+    const mats = [0xff2a1a, 0xffb000, 0x2bd94a].map((c) => new THREE.MeshStandardMaterial({ color: new THREE.Color(c).multiplyScalar(0.4), emissive: c, emissiveIntensity: 0 }));
     mats.forEach((m, k) => {
       const lens = new THREE.Mesh(new THREE.CircleGeometry(0.1, 16), m);
       lens.position.set(0, 3.8 - k * 0.3, 0.16);
@@ -179,10 +192,10 @@ export function buildSignals(
     if (s.lit) {
       // pedestrian signal on the pole side: red man / green man, opposite the vehicle signal
       const ped = new THREE.Group();
-      const hous = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.5, 0.1), housing);
+      const hous = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.5, 0.1), headHousing);
       ped.add(hous);
-      const red = new THREE.MeshStandardMaterial({ color: 0x222222, emissive: 0xff2a1a, emissiveIntensity: 0 });
-      const green = new THREE.MeshStandardMaterial({ color: 0x222222, emissive: 0x2bd94a, emissiveIntensity: 0 });
+      const red = new THREE.MeshStandardMaterial({ color: new THREE.Color(0xff2a1a).multiplyScalar(0.4), emissive: 0xff2a1a, emissiveIntensity: 0 });
+      const green = new THREE.MeshStandardMaterial({ color: new THREE.Color(0x2bd94a).multiplyScalar(0.4), emissive: 0x2bd94a, emissiveIntensity: 0 });
       const rl = new THREE.Mesh(new THREE.PlaneGeometry(0.14, 0.14), red);
       const gl = new THREE.Mesh(new THREE.PlaneGeometry(0.14, 0.14), green);
       rl.position.set(0, 0.12, 0.051);
@@ -216,6 +229,74 @@ export function buildSignals(
       }
     },
   };
+}
+
+// Sign faces as flat shapes in the plate plane (x right, y up), facing +Z. Colours follow the Vienna
+// convention the Rulebook uses: red border for warning and prohibition, blue for mandatory and one-way.
+type Layer = { shape: THREE.Shape; color: number; z?: number } | { text: string; size: number };
+function polygonShape(points: [number, number][]) {
+  const s = new THREE.Shape();
+  points.forEach(([x, y], i) => (i ? s.lineTo(x, y) : s.moveTo(x, y)));
+  s.closePath();
+  return s;
+}
+function discShape(r: number) { const s = new THREE.Shape(); s.absarc(0, 0, r, 0, Math.PI * 2, false); return s; }
+function regular(n: number, r: number, rot = 0): [number, number][] {
+  return Array.from({ length: n }, (_, k) => [r * Math.cos(rot + (2 * Math.PI * k) / n), r * Math.sin(rot + (2 * Math.PI * k) / n)] as [number, number]);
+}
+function signLayers(type: string): Layer[] | null {
+  const speed = /^speed_(\d+)$/.exec(type)?.[1];
+  if (speed) return [{ shape: discShape(0.33), color: 0xd42a20 }, { shape: discShape(0.26), color: 0xffffff, z: 0.01 }, { text: speed, size: 0.36 }];
+  if (type === 'give_way') {
+    const side = 0.9;
+    const tri = (sd: number) => { const hh = (sd * Math.sqrt(3)) / 2, t = hh / 3; return polygonShape([[-sd / 2, t], [sd / 2, t], [0, t - hh]]); };
+    return [{ shape: tri(side), color: 0xd8261f }, { shape: tri(0.62), color: 0xffffff, z: 0.01 }];
+  }
+  if (type === 'noentry') {
+    return [{ shape: discShape(0.36), color: 0xc71f1a }, { shape: polygonShape([[-0.22, -0.06], [0.22, -0.06], [0.22, 0.06], [-0.22, 0.06]]), color: 0xffffff, z: 0.01 }];
+  }
+  if (type === 'one_way') {
+    // arrow pointing UP the page, as on the Rulebook sign
+    return [{ shape: polygonShape([[-0.3, -0.3], [0.3, -0.3], [0.3, 0.3], [-0.3, 0.3]]), color: 0x1f5fb8 },
+      { shape: polygonShape([[-0.05, -0.22], [0.05, -0.22], [0.05, 0.1], [-0.05, 0.1]]), color: 0xffffff, z: 0.01 },
+      { shape: polygonShape([[-0.15, 0.08], [0.15, 0.08], [0, 0.24]]), color: 0xffffff, z: 0.01 }];
+  }
+  if (type === 'priorityroad') {
+    return [{ shape: polygonShape(regular(4, 0.45)), color: 0xffffff }, { shape: polygonShape(regular(4, 0.36)), color: 0xf1c41a, z: 0.01 }];
+  }
+  if (type === 'arrow_right') {
+    // arrow pointing RIGHT on a blue disc
+    return [{ shape: discShape(0.33), color: 0x1f5fb8 }, { shape: polygonShape([[-0.2, -0.05], [0.1, -0.05], [0.1, -0.12], [0.25, 0], [0.1, 0.12], [0.1, 0.05], [-0.2, 0.05]]), color: 0xffffff, z: 0.01 }];
+  }
+  return null;
+}
+function signFace(layers: Layer[]) {
+  const g = new THREE.Group();
+  let z = 0.02;
+  for (const l of layers) {
+    if ('shape' in l) {
+      const m = new THREE.Mesh(new THREE.ShapeGeometry(l.shape), new THREE.MeshStandardMaterial({ color: l.color, side: THREE.DoubleSide, roughness: 0.6 }));
+      m.position.z = z + (l.z ?? 0);
+      g.add(m);
+    } else {
+      // number on an upright plane: reads correctly from the front
+      const c = document.createElement('canvas');
+      c.width = c.height = 128;
+      const x = c.getContext('2d')!;
+      x.fillStyle = '#111';
+      x.font = 'bold 60px system-ui, sans-serif';
+      x.textAlign = 'center';
+      x.textBaseline = 'middle';
+      x.fillText(l.text, 64, 68);
+      const t = new THREE.CanvasTexture(c);
+      t.colorSpace = THREE.SRGBColorSpace;
+      const m = new THREE.Mesh(new THREE.PlaneGeometry(l.size, l.size), new THREE.MeshBasicMaterial({ map: t, transparent: true, side: THREE.DoubleSide }));
+      m.position.z = z + 0.02;
+      g.add(m);
+    }
+    z += 0.005;
+  }
+  return g;
 }
 
 /** Plain plate showing the official code: a sign that is placed but has no dedicated 3D model yet. */
